@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ idea.title }} - Business Analysis{% endblock %}
+
+{% block content %}
+<div class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <a href="{% url 'analyzer:my_ideas' %}" class="text-purple-600 hover:text-purple-700 mb-4 inline-block">
+                <i class="fas fa-arrow-left mr-2"></i> Back to My Ideas
+            </a>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ idea.title }}</h1>
+            <div class="flex items-center space-x-4 text-gray-600">
+                <span><i class="fas fa-industry mr-2"></i>{{ idea.industry }}</span>
+                <span><i class="fas fa-calendar mr-2"></i>{{ idea.created_at|date:"F d, Y" }}</span>
+            </div>
+        </div>
+
+        <!-- Overall Score Card -->
+        {% if validation_report %}
+        <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg p-8 text-white mb-8">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold mb-4">Validation Score</h2>
+                <div class="inline-flex items-center justify-center w-32 h-32 rounded-full border-4 border-white bg-white bg-opacity-20">
+                    <div class="text-5xl font-bold">{{ validation_report.overall_score }}</div>
+                </div>
+                <p class="mt-4 text-xl font-semibold">Recommendation: {{ validation_report.recommendation }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Business Idea Details -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Business Idea Details</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">Description</h4>
+                            <p class="text-gray-600">{{ idea.description }}</p>
+                        </div>
+                        {% if idea.target_market %}
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">Target Market</h4>
+                            <p class="text-gray-600">{{ idea.target_market }}</p>
+                        </div>
+                        {% endif %}
+                        {% if idea.revenue_model %}
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">Revenue Model</h4>
+                            <p class="text-gray-600">{{ idea.revenue_model }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="space-y-6">
+                {% if success_prediction %}
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Success Metrics</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Success Probability</span>
+                            <span class="font-bold">{{ success_prediction.success_probability }}%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Time to Profitability</span>
+                            <span class="font-bold">{{ success_prediction.time_to_profitability }} months</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Investment Required</span>
+                            <span class="font-bold">${{ success_prediction.investment_required|floatformat:0 }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if market_analysis %}
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Market Analysis</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Demand Score</span>
+                            <span class="font-bold">{{ market_analysis.market_demand_score }}/100</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Growth Rate</span>
+                            <span class="font-bold">{{ market_analysis.market_growth_rate }}%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Competition</span>
+                            <span class="font-bold">{{ market_analysis.competition_level }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Detailed Analysis Sections -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- SWOT Analysis -->
+            {% if swot_analysis %}
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">SWOT Analysis</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-green-800 mb-2">Strengths</h4>
+                        <p class="text-sm text-green-700">{{ swot_analysis.strengths }}</p>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-red-800 mb-2">Weaknesses</h4>
+                        <p class="text-sm text-red-700">{{ swot_analysis.weaknesses }}</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-blue-800 mb-2">Opportunities</h4>
+                        <p class="text-sm text-blue-700">{{ swot_analysis.opportunities }}</p>
+                    </div>
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-yellow-800 mb-2">Threats</h4>
+                        <p class="text-sm text-yellow-700">{{ swot_analysis.threats }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Feasibility Analysis -->
+            {% if feasibility_analysis %}
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Feasibility Analysis</h3>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-600">Technical</span>
+                            <span class="font-bold">{{ feasibility_analysis.technical_feasibility }}/100</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: {{ feasibility_analysis.technical_feasibility }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-600">Financial</span>
+                            <span class="font-bold">{{ feasibility_analysis.financial_feasibility }}/100</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-600 h-2 rounded-full" style="width: {{ feasibility_analysis.financial_feasibility }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-600">Market</span>
+                            <span class="font-bold">{{ feasibility_analysis.market_feasibility }}/100</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-purple-600 h-2 rounded-full" style="width: {{ feasibility_analysis.market_feasibility }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-600">Operational</span>
+                            <span class="font-bold">{{ feasibility_analysis.operational_feasibility }}/100</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-orange-600 h-2 rounded-full" style="width: {{ feasibility_analysis.operational_feasibility }}%"></div>
+                        </div>
+                    </div>
+                    {% if feasibility_analysis.feasibility_notes %}
+                    <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-600">{{ feasibility_analysis.feasibility_notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Competitor Analysis -->
+            {% if competitors %}
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Competitor Analysis</h3>
+                <div class="space-y-4">
+                    {% for competitor in competitors %}
+                    <div class="border-l-4 border-purple-500 pl-4">
+                        <h4 class="font-semibold text-gray-900">{{ competitor.competitor_name }}</h4>
+                        <div class="mt-2 text-sm">
+                            <div class="mb-1">
+                                <span class="font-medium text-gray-700">Strengths:</span>
+                                <span class="text-gray-600">{{ competitor.competitor_strengths }}</span>
+                            </div>
+                            <div class="mb-1">
+                                <span class="font-medium text-gray-700">Weaknesses:</span>
+                                <span class="text-gray-600">{{ competitor.competitor_weaknesses }}</span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-700">Threat Level:</span>
+                                <span class="inline-block ml-2 px-2 py-1 text-xs rounded-full {% if competitor.threat_level == 'High' %}bg-red-100 text-red-800{% elif competitor.threat_level == 'Medium' %}bg-yellow-100 text-yellow-800{% else %}bg-green-100 text-green-800{% endif %}">{{ competitor.threat_level }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Risk Analysis -->
+            {% if risk_analysis %}
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Risk Analysis</h3>
+                <div class="space-y-3">
+                    <div class="bg-red-50 p-3 rounded-lg">
+                        <h4 class="font-semibold text-red-800 mb-1">Market Risks</h4>
+                        <p class="text-sm text-red-700">{{ risk_analysis.market_risks }}</p>
+                    </div>
+                    <div class="bg-orange-50 p-3 rounded-lg">
+                        <h4 class="font-semibold text-orange-800 mb-1">Financial Risks</h4>
+                        <p class="text-sm text-orange-700">{{ risk_analysis.financial_risks }}</p>
+                    </div>
+                    <div class="bg-yellow-50 p-3 rounded-lg">
+                        <h4 class="font-semibold text-yellow-800 mb-1">Operational Risks</h4>
+                        <p class="text-sm text-yellow-700">{{ risk_analysis.operational_risks }}</p>
+                    </div>
+                    <div class="bg-purple-50 p-3 rounded-lg">
+                        <h4 class="font-semibold text-purple-800 mb-1">Legal Risks</h4>
+                        <p class="text-sm text-purple-700">{{ risk_analysis.legal_risks }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Improvement Suggestions -->
+        {% if suggestions %}
+        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Improvement Suggestions</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for suggestion in suggestions %}
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-purple-600">{{ suggestion.suggestion_type }}</span>
+                        <div class="flex space-x-1">
+                            <span class="inline-block px-2 py-1 text-xs rounded-full {% if suggestion.priority == 'High' %}bg-red-100 text-red-800{% elif suggestion.priority == 'Medium' %}bg-yellow-100 text-yellow-800{% else %}bg-green-100 text-green-800{% endif %}">{{ suggestion.priority }}</span>
+                            <span class="inline-block px-2 py-1 text-xs rounded-full {% if suggestion.implementation_difficulty == 'Hard' %}bg-red-100 text-red-800{% elif suggestion.implementation_difficulty == 'Medium' %}bg-yellow-100 text-yellow-800{% else %}bg-green-100 text-green-800{% endif %}">{{ suggestion.implementation_difficulty }}</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600">{{ suggestion.suggestion_text }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Validation Report -->
+        {% if validation_report %}
+        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Validation Report</h3>
+            <div class="space-y-6">
+                <div>
+                    <h4 class="font-semibold text-gray-700 mb-2">Executive Summary</h4>
+                    <p class="text-gray-600">{{ validation_report.executive_summary }}</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-700 mb-2">Detailed Analysis</h4>
+                    <p class="text-gray-600">{{ validation_report.detailed_analysis }}</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-700 mb-2">Recommended Next Steps</h4>
+                    <p class="text-gray-600">{{ validation_report.next_steps }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

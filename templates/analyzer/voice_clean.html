@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Idea Assistant - AI Business Validator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 400;
+        }
+        
+        .voice-section {
+            margin-bottom: 30px;
+            padding: 30px;
+            background: #f8f9ff;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mic-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .mic-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+        
+        .mic-button.listening {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .speech-box {
+            margin-top: 20px;
+        }
+        
+        .speech-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .speech-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        
+        .speech-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .analyze-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .analyze-button {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .analyze-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+        }
+        
+        .analyze-button:disabled {
+            background: linear-gradient(135deg, #9ca3af, #059669);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .results-section {
+            background: #f0f9ff;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .results-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .result-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .result-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .result-value.high { color: #10b981; }
+        .result-value.medium { color: #f59e0b; }
+        .result-value.low { color: #ef4444; }
+        
+        .recommendation-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .recommendation-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .recommendation-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        .voice-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .voice-button {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        
+        .voice-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.6);
+        }
+        
+        .voice-button.speaking {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        .status-indicator {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Page Title -->
+        <div class="page-header">
+            <h1 class="page-title">
+                🎤 AI Voice Idea Assistant
+                <span style="font-size: 0.6em; color: #666;">Hackathon Ready</span>
+            </h1>
+            <p class="page-subtitle">Speak your startup idea and get instant AI validation</p>
+        </div>
+
+        <!-- Voice Input Section -->
+        <div class="voice-section">
+            <h2 class="section-title">
+                🎤 Voice Input
+            </h2>
+            
+            <button id="micButton" class="mic-button" onclick="toggleVoiceRecognition()">
+                <span id="micStatus">🎤</span>
+                <span id="micText">Start Voice Assistant</span>
+            </button>
+            
+            <div class="speech-box">
+                <div class="speech-label">
+                    📝 Your Idea (Converted from Voice)
+                </div>
+                <textarea id="speechTextBox" class="speech-textarea" 
+                          placeholder="Start speaking and your words will appear here..."
+                          rows="4"
+                          oninput="checkAnalyzeButton()"></textarea>
+            </div>
+        </div>
+
+        <!-- Analyze Section -->
+        <div class="analyze-section">
+            <button id="analyzeButton" class="analyze-button" onclick="analyzeIdea()" disabled>
+                🧠 Analyze My Idea
+            </button>
+        </div>
+
+        <!-- AI Results Section -->
+        <div id="resultsSection" class="results-section" style="display: none;">
+            <h2 class="results-title">
+                🧠 AI Analysis Result
+            </h2>
+            
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-label">📊 Market Demand</div>
+                    <div id="marketDemand" class="result-value">-</div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-label">⚔️ Competition Level</div>
+                    <div id="competitionLevel" class="result-value">-</div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-label">⚠️ Risk Level</div>
+                    <div id="riskLevel" class="result-value">-</div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-label">✅ Feasibility Score</div>
+                    <div id="feasibilityScore" class="result-value">-</div>
+                </div>
+            </div>
+
+            <!-- Recommendation -->
+            <div class="recommendation-section">
+                <h3 class="recommendation-title">💡 AI Recommendation</h3>
+                <div id="recommendationText" class="recommendation-text">
+                    Analysis will appear here...
+                </div>
+            </div>
+        </div>
+
+        <!-- Voice Response Section -->
+        <div class="voice-section">
+            <button id="voiceButton" class="voice-button" onclick="speakResults()">
+                🔊 AI Voice Response
+            </button>
+            <div id="statusIndicator" class="status-indicator">
+                Ready for voice response
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let recognition;
+        let isRecording = false;
+        let finalTranscript = '';
+        let storedAnalysis = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 AI Voice Assistant loaded');
+            setupVoiceRecognition();
+        });
+
+        // Voice Recognition Setup
+        function setupVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+            } else if ('SpeechRecognition' in window) {
+                recognition = new SpeechRecognition();
+            } else {
+                console.log('❌ Speech recognition not supported');
+                updateStatus('Speech recognition not supported in this browser');
+                return;
+            }
+
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = function(event) {
+                let interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                // Update textbox
+                document.getElementById('speechTextBox').value = finalTranscript + interimTranscript;
+                checkAnalyzeButton();
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                updateStatus('Speech recognition error: ' + event.error);
+                stopRecording();
+            };
+
+            recognition.onend = function() {
+                console.log('Speech recognition ended');
+                stopRecording();
+            };
+        }
+
+        // Toggle Voice Recognition
+        function toggleVoiceRecognition() {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        }
+
+        // Start Recording
+        function startRecording() {
+            if (!recognition) {
+                console.log('❌ Speech recognition not available');
+                return;
+            }
+
+            try {
+                recognition.start();
+                isRecording = true;
+                updateMicButton(true);
+                updateStatus('🎤 Listening... Speak your business idea');
+                console.log('🎤 Started voice recognition');
+            } catch (error) {
+                console.error('❌ Error starting recognition:', error);
+                updateStatus('Error starting voice recognition');
+            }
+        }
+
+        // Stop Recording
+        function stopRecording() {
+            if (recognition && isRecording) {
+                recognition.stop();
+                isRecording = false;
+                updateMicButton(false);
+                updateStatus('Voice recognition stopped');
+                console.log('🛑 Stopped voice recognition');
+            }
+        }
+
+        // Update Microphone Button
+        function updateMicButton(recording) {
+            const micButton = document.getElementById('micButton');
+            const micStatus = document.getElementById('micStatus');
+            const micText = document.getElementById('micText');
+            
+            if (recording) {
+                micButton.classList.add('listening');
+                micStatus.textContent = '🛑';
+                micText.textContent = 'Stop Voice Assistant';
+            } else {
+                micButton.classList.remove('listening');
+                micStatus.textContent = '🎤';
+                micText.textContent = 'Start Voice Assistant';
+            }
+        }
+
+        // Update Status
+        function updateStatus(message) {
+            const statusIndicator = document.getElementById('statusIndicator');
+            if (statusIndicator) {
+                statusIndicator.textContent = message;
+            }
+        }
+
+        // Check Analyze Button
+        function checkAnalyzeButton() {
+            const textBox = document.getElementById('speechTextBox');
+            const analyzeButton = document.getElementById('analyzeButton');
+            
+            if (textBox && analyzeButton) {
+                const text = textBox.value.trim();
+                const hasContent = text.length >= 5;
+                
+                analyzeButton.disabled = !hasContent;
+                
+                if (hasContent) {
+                    analyzeButton.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    analyzeButton.style.cursor = 'pointer';
+                } else {
+                    analyzeButton.style.background = 'linear-gradient(135deg, #9ca3af, #059669)';
+                    analyzeButton.style.cursor = 'not-allowed';
+                }
+            }
+        }
+
+        // Analyze Idea
+        async function analyzeIdea() {
+            const textBox = document.getElementById('speechTextBox');
+            const ideaText = textBox.value.trim();
+            
+            if (!ideaText || ideaText.length < 5) {
+                updateStatus('Please speak or type a business idea first (minimum 5 characters)');
+                return;
+            }
+            
+            updateStatus('🧠 Analyzing your business idea...');
+            
+            try {
+                // Send to backend API
+                const response = await fetch('/analyze-api/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify({
+                        title: 'Voice Business Idea',
+                        description: ideaText,
+                        industry: 'Technology',
+                        target_market: 'General Market',
+                        revenue_model: 'Subscription',
+                        location: 'Global',
+                        idea: ideaText,
+                        quick: true
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data.analysis);
+                    speakResults(data.analysis);
+                } else {
+                    updateStatus('Analysis failed: ' + data.error);
+                }
+                
+            } catch (error) {
+                console.error('❌ Analysis error:', error);
+                updateStatus('Network error: ' + error.message);
+            }
+        }
+
+        // Display Results
+        function displayResults(analysis) {
+            console.log('📊 Displaying analysis results');
+            
+            if (!analysis) {
+                console.error('❌ No analysis data');
+                return;
+            }
+            
+            // Store analysis for voice playback
+            storedAnalysis = analysis;
+            
+            // Show results section
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.style.display = 'block';
+            
+            // Update results
+            document.getElementById('marketDemand').textContent = analysis.market_demand_score || '-';
+            document.getElementById('competitionLevel').textContent = analysis.competition_level || '-';
+            document.getElementById('riskLevel').textContent = analysis.risk_score || '-';
+            document.getElementById('feasibilityScore').textContent = analysis.feasibility_score || '-';
+            
+            // Update recommendation
+            const recommendation = generateRecommendation(analysis);
+            document.getElementById('recommendationText').textContent = recommendation;
+            
+            updateStatus('✅ Analysis complete! Scroll down to see results.');
+            
+            // Scroll to results
+            setTimeout(() => {
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }, 500);
+        }
+
+        // Generate Recommendation
+        function generateRecommendation(analysis) {
+            const demand = analysis.market_demand_score || 50;
+            const competition = analysis.competition_level || 'Medium';
+            const risk = analysis.risk_score || 50;
+            const feasibility = analysis.feasibility_score || 50;
+            
+            let recommendation = 'Your business idea has ';
+            
+            if (demand > 70) {
+                recommendation += 'strong market demand';
+            } else if (demand > 50) {
+                recommendation += 'moderate market potential';
+            } else {
+                recommendation += 'limited market demand';
+            }
+            
+            recommendation += ' with ' + competition.toLowerCase() + ' competition. ';
+            
+            if (feasibility > 70) {
+                recommendation += 'The feasibility score is high, suggesting good implementation potential. ';
+            } else if (feasibility > 50) {
+                recommendation += 'The feasibility score is moderate, requiring careful planning. ';
+            } else {
+                recommendation += 'The feasibility score is low, indicating significant challenges. ';
+            }
+            
+            recommendation += 'Consider focusing on user acquisition and technology integration to maximize success potential.';
+            
+            return recommendation;
+        }
+
+        // Speak Results
+        function speakResults(analysis) {
+            if (!analysis) {
+                updateStatus('No analysis results to speak');
+                return;
+            }
+            
+            if ('speechSynthesis' in window) {
+                const recommendation = generateRecommendation(analysis);
+                const utterance = new SpeechSynthesisUtterance(recommendation);
+                
+                // Configure voice
+                utterance.rate = 0.9;
+                utterance.pitch = 1.0;
+                utterance.volume = 0.8;
+                
+                // Update button state
+                const voiceButton = document.getElementById('voiceButton');
+                if (voiceButton) {
+                    voiceButton.classList.add('speaking');
+                    voiceButton.textContent = '🔊 AI Speaking...';
+                }
+                
+                utterance.onstart = function() {
+                    updateStatus('🔊 AI is speaking...');
+                };
+                
+                utterance.onend = function() {
+                    updateStatus('✅ Voice response complete');
+                    if (voiceButton) {
+                        voiceButton.classList.remove('speaking');
+                        voiceButton.textContent = '🔊 AI Voice Response';
+                    }
+                };
+                
+                utterance.onerror = function(event) {
+                    console.error('❌ Speech synthesis error:', event);
+                    updateStatus('❌ Voice synthesis error');
+                    if (voiceButton) {
+                        voiceButton.classList.remove('speaking');
+                        voiceButton.textContent = '🔊 AI Voice Response';
+                    }
+                };
+                
+                // Speak
+                speechSynthesis.speak(utterance);
+                
+            } else {
+                updateStatus('❌ Speech synthesis not supported in this browser');
+            }
+        }
+
+        // Get CSRF Token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

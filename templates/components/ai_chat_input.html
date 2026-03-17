@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Business Assistant Chat Input</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .demo-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            gap: 40px;
+        }
+
+        .demo-title {
+            text-align: center;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .demo-title h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+            text-shadow: 0 0 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .demo-title p {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 800px;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .chat-messages {
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            min-height: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(148, 163, 184, 0.1);
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            border-radius: 4px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+        }
+
+        .message.assistant .message-avatar {
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            color: white;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 16px 20px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        .message.assistant .message-content {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #f8fafc;
+            border-bottom-left-radius: 6px;
+        }
+
+        /* Main Chat Input Component */
+        .ai-chat-input {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid transparent;
+            border-radius: 40px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .ai-chat-input::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 40px;
+            padding: 2px;
+            background: linear-gradient(135deg, #3b82f6, #06b6d4, #8b5cf6);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .ai-chat-input:hover::before,
+        .ai-chat-input:focus-within::before {
+            opacity: 1;
+        }
+
+        .ai-chat-input:focus-within {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .chat-input-field {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #f8fafc;
+            font-size: 16px;
+            padding: 8px 12px;
+            font-family: inherit;
+        }
+
+        .chat-input-field::placeholder {
+            color: #64748b;
+            transition: color 0.3s ease;
+        }
+
+        .ai-chat-input:focus-within .chat-input-field::placeholder {
+            color: #94a3b8;
+        }
+
+        .input-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mic-button,
+        .send-button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mic-button {
+            background: rgba(148, 163, 184, 0.1);
+            color: #64748b;
+        }
+
+        .mic-button:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            transform: scale(1.05);
+        }
+
+        .mic-button.recording {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            animation: recordingPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes recordingPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 12px rgba(239, 68, 68, 0);
+            }
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #3b82f6, #06b6d4);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .send-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .mic-button i,
+        .send-button i {
+            font-size: 18px;
+            transition: transform 0.2s ease;
+        }
+
+        .mic-button:hover i,
+        .send-button:hover:not(:disabled) i {
+            transform: scale(1.1);
+        }
+
+        /* Voice recording waves */
+        .voice-waves {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            gap: 3px;
+        }
+
+        .voice-waves.active {
+            display: flex;
+        }
+
+        .wave {
+            width: 3px;
+            height: 20px;
+            background: #ef4444;
+            border-radius: 2px;
+            animation: waveAnimation 1s ease-in-out infinite;
+        }
+
+        .wave:nth-child(1) { animation-delay: 0s; }
+        .wave:nth-child(2) { animation-delay: 0.1s; }
+        .wave:nth-child(3) { animation-delay: 0.2s; }
+        .wave:nth-child(4) { animation-delay: 0.3s; }
+
+        @keyframes waveAnimation {
+            0%, 100% { height: 8px; }
+            50% { height: 20px; }
+        }
+
+        /* Status indicator */
+        .status-indicator {
+            position: absolute;
+            top: -30px;
+            left: 20px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #94a3b8;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .status-indicator.active {
+            display: block;
+        }
+
+        .status-indicator.listening {
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .status-indicator.processing {
+            color: #f59e0b;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .demo-title h1 {
+                font-size: 2rem;
+            }
+
+            .demo-title p {
+                font-size: 1rem;
+            }
+
+            .chat-container {
+                padding: 0 10px;
+            }
+
+            .chat-messages {
+                padding: 20px;
+                min-height: 300px;
+                max-height: 400px;
+            }
+
+            .message-content {
+                max-width: 85%;
+                font-size: 13px;
+            }
+
+            .ai-chat-input {
+                padding: 10px 14px;
+            }
+
+            .mic-button,
+            .send-button {
+                width: 40px;
+                height: 40px;
+            }
+
+            .mic-button i,
+            .send-button i {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .demo-container {
+                padding: 20px 15px;
+            }
+
+            .chat-messages {
+                padding: 15px;
+                min-height: 250px;
+                max-height: 350px;
+            }
+
+            .message-content {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-title">
+            <h1>AI Business Assistant</h1>
+            <p>Experience our modern chat interface with voice recognition capabilities. Ask me anything about your business ideas!</p>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message assistant">
+                    <div class="message-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        Hello! I'm your AI Business Assistant. I can help you analyze business ideas, provide market insights, and offer strategic recommendations. Feel free to type or use voice input to ask me anything!
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-chat-input" id="chatInput">
+                <div class="status-indicator" id="statusIndicator">
+                    <span id="statusText">Ready</span>
+                </div>
+                
+                <input 
+                    type="text" 
+                    class="chat-input-field" 
+                    id="messageInput"
+                    placeholder="Ask me about your business idea..."
+                    autocomplete="off"
+                >
+                
+                <div class="input-actions">
+                    <button class="mic-button" id="micButton" title="Start voice recording">
+                        <div class="voice-waves" id="voiceWaves">
+                            <div class="wave"></div>
+                            <div class="wave"></div>
+                            <div class="wave"></div>
+                            <div class="wave"></div>
+                        </div>
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    
+                    <button class="send-button" id="sendButton" title="Send message" disabled>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class AIChatInput {
+            constructor() {
+                this.initElements();
+                this.initSpeechRecognition();
+                this.bindEvents();
+                this.isRecording = false;
+                this.recognition = null;
+            }
+
+            initElements() {
+                this.chatInput = document.getElementById('chatInput');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendButton = document.getElementById('sendButton');
+                this.micButton = document.getElementById('micButton');
+                this.chatMessages = document.getElementById('chatMessages');
+                this.statusIndicator = document.getElementById('statusIndicator');
+                this.statusText = document.getElementById('statusText');
+                this.voiceWaves = document.getElementById('voiceWaves');
+            }
+
+            initSpeechRecognition() {
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    this.recognition = new SpeechRecognition();
+                    
+                    this.recognition.continuous = false;
+                    this.recognition.interimResults = true;
+                    this.recognition.maxAlternatives = 1;
+                    this.recognition.lang = 'en-US';
+
+                    this.recognition.onstart = () => {
+                        this.isRecording = true;
+                        this.updateStatus('listening', 'Listening...');
+                        this.micButton.classList.add('recording');
+                        this.voiceWaves.classList.add('active');
+                        this.messageInput.placeholder = 'Listening...';
+                    };
+
+                    this.recognition.onresult = (event) => {
+                        let finalTranscript = '';
+                        let interimTranscript = '';
+
+                        for (let i = event.resultIndex; i < event.results.length; i++) {
+                            const transcript = event.results[i][0].transcript;
+                            if (event.results[i].isFinal) {
+                                finalTranscript += transcript;
+                            } else {
+                                interimTranscript += transcript;
+                            }
+                        }
+
+                        if (finalTranscript) {
+                            this.messageInput.value = finalTranscript;
+                            this.enableSendButton();
+                            this.updateStatus('processing', 'Processing...');
+                        } else if (interimTranscript) {
+                            this.messageInput.value = interimTranscript;
+                        }
+                    };
+
+                    this.recognition.onerror = (event) => {
+                        console.error('Speech recognition error:', event.error);
+                        this.updateStatus('error', `Error: ${event.error}`);
+                        this.stopRecording();
+                    };
+
+                    this.recognition.onend = () => {
+                        this.stopRecording();
+                    };
+                } else {
+                    console.warn('Speech recognition not supported');
+                    this.micButton.style.display = 'none';
+                }
+            }
+
+            bindEvents() {
+                // Send button click
+                this.sendButton.addEventListener('click', () => this.sendMessage());
+
+                // Enter key to send
+                this.messageInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+
+                // Input field changes
+                this.messageInput.addEventListener('input', () => {
+                    this.toggleSendButton();
+                });
+
+                // Microphone button
+                this.micButton.addEventListener('click', () => {
+                    if (this.isRecording) {
+                        this.recognition.stop();
+                    } else {
+                        this.startRecording();
+                    }
+                });
+
+                // Focus effects
+                this.messageInput.addEventListener('focus', () => {
+                    this.chatInput.classList.add('focused');
+                });
+
+                this.messageInput.addEventListener('blur', () => {
+                    this.chatInput.classList.remove('focused');
+                });
+            }
+
+            startRecording() {
+                if (this.recognition) {
+                    try {
+                        this.recognition.start();
+                    } catch (error) {
+                        console.error('Failed to start recognition:', error);
+                        this.updateStatus('error', 'Failed to start recording');
+                    }
+                }
+            }
+
+            stopRecording() {
+                this.isRecording = false;
+                this.micButton.classList.remove('recording');
+                this.voiceWaves.classList.remove('active');
+                this.messageInput.placeholder = 'Ask me about your business idea...';
+                
+                if (this.messageInput.value.trim()) {
+                    this.updateStatus('ready', 'Ready to send');
+                } else {
+                    this.updateStatus('ready', 'Ready');
+                }
+            }
+
+            sendMessage() {
+                const message = this.messageInput.value.trim();
+                
+                if (!message) return;
+
+                // Add user message
+                this.addMessage(message, 'user');
+                
+                // Clear input and disable send
+                this.messageInput.value = '';
+                this.disableSendButton();
+                
+                // Simulate AI response
+                this.simulateAIResponse(message);
+            }
+
+            addMessage(content, type = 'user') {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}`;
+                
+                const avatar = type === 'user' ? 'user' : 'robot';
+                const icon = type === 'user' ? 'fa-user' : 'fa-robot';
+                
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">
+                        <i class="fas fa-${icon}"></i>
+                    </div>
+                    <div class="message-content">
+                        ${content}
+                    </div>
+                `;
+                
+                this.chatMessages.appendChild(messageDiv);
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+            }
+
+            simulateAIResponse(userMessage) {
+                this.updateStatus('processing', 'Thinking...');
+                
+                // Simulate processing delay
+                setTimeout(() => {
+                    const responses = [
+                        "That's an interesting business idea! Have you considered the market size and potential competition?",
+                        "Great question! Based on current market trends, I'd recommend focusing on digital marketing strategies first.",
+                        "I like your approach! Have you thought about the scalability of this business model?",
+                        "Excellent point! Let me break down the key factors you should consider for this venture.",
+                        "That's a solid foundation! You might want to explore partnerships to accelerate growth."
+                    ];
+                    
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    this.addMessage(randomResponse, 'assistant');
+                    this.updateStatus('ready', 'Ready');
+                }, 1000 + Math.random() * 1000);
+            }
+
+            toggleSendButton() {
+                const hasText = this.messageInput.value.trim().length > 0;
+                if (hasText) {
+                    this.enableSendButton();
+                } else {
+                    this.disableSendButton();
+                }
+            }
+
+            enableSendButton() {
+                this.sendButton.disabled = false;
+            }
+
+            disableSendButton() {
+                this.sendButton.disabled = true;
+            }
+
+            updateStatus(status, text) {
+                this.statusIndicator.className = 'status-indicator active';
+                this.statusIndicator.classList.add(status);
+                this.statusText.textContent = text;
+                
+                if (status === 'ready') {
+                    setTimeout(() => {
+                        this.statusIndicator.classList.remove('active');
+                    }, 2000);
+                }
+            }
+        }
+
+        // Initialize the chat input component
+        document.addEventListener('DOMContentLoaded', () => {
+            new AIChatInput();
+        });
+    </script>
+</body>
+</html>

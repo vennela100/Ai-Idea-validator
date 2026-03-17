@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Business Idea Validator - Test Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #7C3AED;
+            --secondary: #2563EB;
+            --accent: #06B6D4;
+            --success: #10B981;
+            --danger: #EF4444;
+            --dark-bg: #0F172A;
+            --darker-bg: #020617;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #F8FAFC;
+            --text-secondary: #CBD5E1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 25%, #1a1f3a 50%, var(--dark-bg) 75%, var(--darker-bg) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(124, 58, 237, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 50% 20%, rgba(37, 99, 235, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.3) 0%, transparent 50%);
+            animation: gradientShift 15s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { 
+                background: 
+                    radial-gradient(circle at 20% 50%, rgba(124, 58, 237, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 50%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 50% 20%, rgba(37, 99, 235, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.3) 0%, transparent 50%);
+            }
+            25% { 
+                background: 
+                    radial-gradient(circle at 80% 50%, rgba(124, 58, 237, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 50% 80%, rgba(37, 99, 235, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.3) 0%, transparent 50%);
+            }
+            50% { 
+                background: 
+                    radial-gradient(circle at 50% 20%, rgba(124, 58, 237, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 50% 80%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 50%, rgba(16, 185, 129, 0.3) 0%, transparent 50%);
+            }
+            75% { 
+                background: 
+                    radial-gradient(circle at 50% 80%, rgba(124, 58, 237, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 50% 20%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 50%, rgba(37, 99, 235, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.3) 0%, transparent 50%);
+            }
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: relative;
+            z-index: 10;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(124, 58, 237, 0.3);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .status-running {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+        }
+
+        .links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .link-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .link-card:hover {
+            transform: translateY(-2px);
+            background: rgba(124, 58, 237, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
+        }
+
+        .link-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent);
+        }
+
+        .link-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .link-url {
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+        }
+
+        .instructions {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .instructions h3 {
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.6;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <div class="container">
+        <div class="card">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>AI</span>
+            </div>
+            
+            <h1 class="title">AI Business Idea Validator</h1>
+            
+            <div class="status">
+                <div class="status-indicator status-running">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Django Server Running</span>
+                </div>
+                <div class="status-indicator status-error pulse">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Connection Issues Detected</span>
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <h3>🔧 Troubleshooting Steps</h3>
+                <ol>
+                    <li><strong>Try Different URLs:</strong> Test all the URLs below</li>
+                    <li><strong>Check Firewall:</strong> Allow Python through Windows Firewall</li>
+                    <li><strong>Use Different Browser:</strong> Try Chrome, Firefox, or Edge</li>
+                    <li><strong>Clear Cache:</strong> Clear browser cache and cookies</li>
+                    <li><strong>Run as Administrator:</strong> Open command prompt as admin</li>
+                </ol>
+            </div>
+            
+            <div class="links">
+                <a href="http://localhost/" class="link-card">
+                    <div class="link-title">🏠 Main Application</div>
+                    <div class="link-description">Login page with demo credentials</div>
+                    <div class="link-url">http://localhost/</div>
+                </a>
+                
+                <a href="http://127.0.0.1/" class="link-card">
+                    <div class="link-title">🔐 Alternative Access</div>
+                    <div class="link-description">Direct IP address access</div>
+                    <div class="link-url">http://127.0.0.1/</div>
+                </a>
+                
+                <a href="http://localhost:80/" class="link-card">
+                    <div class="link-title">🚀 Port 80</div>
+                    <div class="link-description">Standard HTTP port</div>
+                    <div class="link-url">http://localhost:80/</div>
+                </a>
+                
+                <a href="http://127.0.0.1:80/" class="link-card">
+                    <div class="link-title">🌐 IP + Port 80</div>
+                    <div class="link-description">IP with explicit port</div>
+                    <div class="link-url">http://127.0.0.1:80/</div>
+                </a>
+                
+                <a href="http://localhost:9001/" class="link-card">
+                    <div class="link-title">🔧 Port 9001</div>
+                    <div class="link-description">Alternative port</div>
+                    <div class="link-url">http://localhost:9001/</div>
+                </a>
+                
+                <a href="http://127.0.0.1:9001/" class="link-card">
+                    <div class="link-title">📡 IP + Port 9001</div>
+                    <div class="link-description">IP with port 9001</div>
+                    <div class="link-url">http://127.0.0.1:9001/</div>
+                </a>
+            </div>
+            
+            <div class="instructions" style="margin-top: 20px;">
+                <h3>🎯 Demo Credentials</h3>
+                <p style="text-align: center; font-size: 1.1rem; margin: 15px 0;">
+                    <strong>Username:</strong> <code style="background: rgba(124, 58, 237, 0.2); padding: 5px 10px; border-radius: 4px;">demo</code><br>
+                    <strong>Password:</strong> <code style="background: rgba(124, 58, 237, 0.2); padding: 5px 10px; border-radius: 4px;">demo123</code>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check server status
+        async function checkServer(url) {
+            try {
+                const response = await fetch(url);
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        // Test all URLs
+        const urls = [
+            'http://localhost/',
+            'http://127.0.0.1/',
+            'http://localhost:80/',
+            'http://127.0.0.1:80/',
+            'http://localhost:9001/',
+            'http://127.0.0.1:9001/'
+        ];
+
+        // Update status indicators
+        urls.forEach(async (url) => {
+            const isWorking = await checkServer(url);
+            console.log(`Testing ${url}: ${isWorking ? '✅ Working' : '❌ Not Working'}`);
+        });
+
+        // Auto-refresh every 5 seconds
+        setInterval(() => {
+            urls.forEach(async (url) => {
+                const isWorking = await checkServer(url);
+                console.log(`Re-testing ${url}: ${isWorking ? '✅ Working' : '❌ Not Working'}`);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

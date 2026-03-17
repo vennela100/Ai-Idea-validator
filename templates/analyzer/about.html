@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}About - AI Business Idea Validator{% endblock %}
+
+{% block extra_css %}
+<style>
+.gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Hero Section -->
+        <div class="text-center mb-16">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">About AI Business Idea Validator</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Empowering entrepreneurs with AI-powered business analysis to make informed decisions and increase startup success rates.
+            </p>
+        </div>
+
+        <!-- Mission Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
+                <p class="text-lg text-gray-600 mb-4">
+                    We believe that great ideas deserve the best chance to succeed. Our mission is to provide entrepreneurs with comprehensive, data-driven insights that transform raw concepts into viable business strategies.
+                </p>
+                <p class="text-lg text-gray-600 mb-4">
+                    By leveraging advanced AI technology, we analyze every critical aspect of your business idea, from market potential to competitive landscape, helping you identify opportunities and mitigate risks before investing valuable time and resources.
+                </p>
+            </div>
+            <div class="gradient-bg rounded-lg p-8 text-white">
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-chart-line text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-2">Data-Driven Analysis</h3>
+                            <p class="text-purple-100">Our AI analyzes market trends, competitor data, and industry benchmarks to provide accurate insights.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-brain text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-2">AI-Powered Insights</h3>
+                            <p class="text-purple-100">Advanced machine learning algorithms process complex business data to generate actionable recommendations.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-shield-alt text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-2">Risk Mitigation</h3>
+                            <p class="text-purple-100">Identify potential challenges and receive strategies to overcome them before they become problems.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 text-center mb-12">Comprehensive Analysis Features</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-search text-purple-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Market Research</h3>
+                    <p class="text-gray-600">Analyze market size, growth trends, and target audience demographics to validate demand.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-users text-purple-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Competitor Analysis</h3>
+                    <p class="text-gray-600">Identify key competitors, analyze their strengths and weaknesses, and assess market positioning.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-exclamation-triangle text-purple-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Risk Assessment</h3>
+                    <p class="text-gray-600">Evaluate market, financial, operational, and legal risks with comprehensive scoring.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-tachometer-alt text-purple-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Feasibility Analysis</h3>
+                    <p class="text-gray-600">Score technical, financial, market, and operational feasibility on a 100-point scale.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-pie text-purple-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">SWOT Analysis</h3>
+                    <p class="text-gray-600">Generate detailed SWOT analysis identifying strengths, weaknesses, opportunities, and threats.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-lightbulb text-purple-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">AI Suggestions</h3>
+                    <p class="text-gray-600">Receive personalized improvement recommendations prioritized by impact and difficulty.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 text-center mb-12">How It Works</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                        1
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Submit Your Idea</h3>
+                    <p class="text-gray-600">Fill out our comprehensive form with your business concept, target market, and revenue model.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                        2
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">AI Analysis</h3>
+                    <p class="text-gray-600">Our advanced AI analyzes your idea across multiple dimensions using industry data and market trends.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                        3
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Get Results</h3>
+                    <p class="text-gray-600">Receive detailed reports including feasibility scores, risk analysis, and success predictions.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                        4
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2">Take Action</h3>
+                    <p class="text-gray-600">Use our insights to refine your strategy, secure funding, and launch with confidence.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology Section -->
+        <div class="bg-gray-50 rounded-lg p-8 mb-16">
+            <h2 class="text-3xl font-bold text-gray-900 text-center mb-8">Powered by Advanced Technology</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">AI & Machine Learning</h3>
+                    <p class="text-gray-600 mb-4">
+                        Our platform leverages state-of-the-art machine learning models trained on thousands of successful and unsuccessful startups. This enables us to identify patterns and predict outcomes with remarkable accuracy.
+                    </p>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Natural Language Processing for text analysis</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Predictive analytics for success forecasting</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Pattern recognition for market trend analysis</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Data Sources & Analytics</h3>
+                    <p class="text-gray-600 mb-4">
+                        We integrate multiple data sources to provide comprehensive insights, including market research reports, financial databases, industry benchmarks, and real-time market data.
+                    </p>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Real-time market data integration</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Industry benchmark databases</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> Competitive intelligence gathering</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="text-center">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Ready to Validate Your Business Idea?</h2>
+            <p class="text-xl text-gray-600 mb-8">Join thousands of entrepreneurs who have used our platform to refine their business strategies.</p>
+            <a href="{% url 'analyzer:home' %}" class="bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors text-lg">
+                <i class="fas fa-rocket mr-2"></i> Start Your Analysis
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

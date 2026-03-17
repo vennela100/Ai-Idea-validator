@@ -1,0 +1,565 @@
+{% extends 'base.html' %}
+
+{% block title %}Analysis Results - AI Business Idea Validator{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --primary: #7C3AED;
+    --secondary: #2563EB;
+    --accent: #06B6D4;
+    --dark-bg: #0F172A;
+    --darker-bg: #020617;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-primary: #F8FAFC;
+    --text-secondary: #CBD5E1;
+    --glow-primary: 0 0 20px rgba(124, 58, 237, 0.5);
+    --glow-accent: 0 0 20px rgba(6, 182, 212, 0.5);
+}
+
+body {
+    background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 50%, var(--darker-bg) 100%);
+    min-height: 100vh;
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glow-primary);
+}
+
+.metric-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.1), transparent);
+    transition: left 0.8s;
+}
+
+.metric-card:hover::before {
+    left: 100%;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+    fill: none;
+    stroke: var(--glass-border);
+    stroke-width: 6;
+}
+
+.progress-ring-fill {
+    fill: none;
+    stroke: url(#gradient);
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.5s ease-in-out;
+}
+
+.score-display {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.tab-button {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 12px 24px;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.tab-button.active {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    border-color: var(--primary);
+    box-shadow: var(--glow-primary);
+}
+
+.tab-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glow-accent);
+}
+
+.data-visualization {
+    height: 300px;
+    position: relative;
+}
+
+.chart-bar {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.chart-bar:hover {
+    transform: scaleY(1.05);
+    box-shadow: var(--glow-primary);
+}
+
+.swot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.swot-item {
+    padding: 24px;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.swot-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+}
+
+.swot-strengths { background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), transparent); }
+.swot-weaknesses { background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), transparent); }
+.swot-opportunities { background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), transparent); }
+.swot-threats { background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), transparent); }
+
+.timeline-item {
+    position: relative;
+    padding-left: 40px;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--primary), var(--accent));
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -5px;
+    top: 8px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: var(--glow-accent);
+}
+
+.recommendation-card {
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+}
+
+.recommendation-high {
+    border-left-color: #EF4444;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), transparent);
+}
+
+.recommendation-medium {
+    border-left-color: #F59E0B;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), transparent);
+}
+
+.recommendation-low {
+    border-left-color: #10B981;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent);
+}
+
+.recommendation-card:hover {
+    transform: translateX(5px);
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-up {
+    animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.pulse-animation {
+    animation: pulse 2s ease-in-out infinite;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold mb-4" style="background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                Analysis Results
+            </h1>
+            <p class="text-xl text-gray-400">{{ idea.title }}</p>
+        </div>
+
+        <!-- Overall Score Card -->
+        <div class="glass-card p-8 mb-8 text-center animate-slide-up">
+            <div class="flex flex-col items-center">
+                <div class="relative mb-6">
+                    <svg width="150" height="150" class="progress-ring">
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#7C3AED;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#06B6D4;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle cx="75" cy="75" r="70" class="progress-ring-circle"></circle>
+                        <circle cx="75" cy="75" r="70" class="progress-ring-fill" 
+                                stroke-dasharray="439.822" 
+                                stroke-dashoffset="{{ 439.822 - (439.822 * validation_report.overall_score / 100) }}"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="score-display">{{ validation_report.overall_score }}%</span>
+                    </div>
+                </div>
+                <h2 class="text-2xl font-bold mb-2 text-white">Overall Validation Score</h2>
+                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium
+                    {% if validation_report.recommendation == 'Proceed' %}bg-green-500 text-white{% elif validation_report.recommendation == 'Reconsider' %}bg-yellow-500 text-white{% else %}bg-red-500 text-white{% endif %}">
+                    {{ validation_report.recommendation }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="flex flex-wrap gap-4 mb-8 justify-center">
+            <button onclick="showTab('overview')" class="tab-button active" data-tab="overview">
+                <i class="fas fa-chart-pie mr-2"></i> Overview
+            </button>
+            <button onclick="showTab('market')" class="tab-button" data-tab="market">
+                <i class="fas fa-chart-line mr-2"></i> Market Analysis
+            </button>
+            <button onclick="showTab('swot')" class="tab-button" data-tab="swot">
+                <i class="fas fa-th mr-2"></i> SWOT
+            </button>
+            <button onclick="showTab('risks')" class="tab-button" data-tab="risks">
+                <i class="fas fa-exclamation-triangle mr-2"></i> Risks
+            </button>
+            <button onclick="showTab('recommendations')" class="tab-button" data-tab="recommendations">
+                <i class="fas fa-lightbulb mr-2"></i> Recommendations
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-content">
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="glass-card metric-card p-6 text-center animate-slide-up" style="animation-delay: 0.1s;">
+                        <i class="fas fa-tachometer-alt text-4xl text-accent mb-4"></i>
+                        <h3 class="font-bold text-white mb-2">Feasibility</h3>
+                        <div class="text-3xl font-bold text-green-400">{{ feasibility_analysis.overall_feasibility_score }}%</div>
+                    </div>
+                    
+                    <div class="glass-card metric-card p-6 text-center animate-slide-up" style="animation-delay: 0.2s;">
+                        <i class="fas fa-chart-line text-4xl text-accent mb-4"></i>
+                        <h3 class="font-bold text-white mb-2">Market Score</h3>
+                        <div class="text-3xl font-bold text-blue-400">{{ market_analysis.market_demand_score }}/100</div>
+                    </div>
+                    
+                    <div class="glass-card metric-card p-6 text-center animate-slide-up" style="animation-delay: 0.3s;">
+                        <i class="fas fa-trophy text-4xl text-accent mb-4"></i>
+                        <h3 class="font-bold text-white mb-2">Success Rate</h3>
+                        <div class="text-3xl font-bold text-purple-400">{{ success_prediction.success_probability }}%</div>
+                    </div>
+                    
+                    <div class="glass-card metric-card p-6 text-center animate-slide-up" style="animation-delay: 0.4s;">
+                        <i class="fas fa-dollar-sign text-4xl text-accent mb-4"></i>
+                        <h3 class="font-bold text-white mb-2">Investment</h3>
+                        <div class="text-2xl font-bold text-yellow-400">${{ success_prediction.investment_required|floatformat:0 }}</div>
+                    </div>
+                </div>
+
+                <!-- Executive Summary -->
+                <div class="glass-card p-8 animate-slide-up" style="animation-delay: 0.5s;">
+                    <h3 class="text-2xl font-bold mb-4 text-white">
+                        <i class="fas fa-file-alt mr-3 text-accent"></i> Executive Summary
+                    </h3>
+                    <div class="prose prose-invert max-w-none">
+                        <p class="text-gray-300 leading-relaxed">{{ validation_report.executive_summary }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Analysis Tab -->
+            <div id="market-tab" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="glass-card p-8">
+                        <h3 class="text-2xl font-bold mb-6 text-white">
+                            <i class="fas fa-globe mr-3 text-accent"></i> Market Overview
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Market Size</span>
+                                <span class="text-white font-semibold">{{ market_analysis.market_size }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Growth Rate</span>
+                                <span class="text-accent font-bold">{{ market_analysis.market_growth_rate }}%</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400">Competition</span>
+                                <span class="text-white font-semibold">{{ market_analysis.competition_level }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card p-8">
+                        <h3 class="text-2xl font-bold mb-6 text-white">
+                            <i class="fas fa-users mr-3 text-accent"></i> Target Audience
+                        </h3>
+                        <p class="text-gray-300 leading-relaxed">{{ market_analysis.target_audience }}</p>
+                    </div>
+                </div>
+
+                <!-- Competitors -->
+                <div class="glass-card p-8">
+                    <h3 class="text-2xl font-bold mb-6 text-white">
+                        <i class="fas fa-chess mr-3 text-accent"></i> Competitor Analysis
+                    </h3>
+                    <div class="space-y-6">
+                        {% for competitor in competitors %}
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="glass-card p-6">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h4 class="text-xl font-bold text-white">{{ competitor.competitor_name }}</h4>
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium
+                                        {% if competitor.threat_level == 'High' %}bg-red-500 text-white{% elif competitor.threat_level == 'Medium' %}bg-yellow-500 text-white{% else %}bg-green-500 text-white{% endif %}">
+                                        {{ competitor.threat_level }}
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h5 class="font-semibold text-green-400 mb-2">Strengths</h5>
+                                        <p class="text-gray-300 text-sm">{{ competitor.competitor_strengths }}</p>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold text-red-400 mb-2">Weaknesses</h5>
+                                        <p class="text-gray-300 text-sm">{{ competitor.competitor_weaknesses }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- SWOT Tab -->
+            <div id="swot-tab" class="tab-content hidden">
+                <div class="glass-card p-8">
+                    <h3 class="text-2xl font-bold mb-8 text-white">
+                        <i class="fas fa-th mr-3 text-accent"></i> SWOT Analysis
+                    </h3>
+                    <div class="swot-grid">
+                        <div class="swot-item swot-strengths">
+                            <h4 class="text-xl font-bold mb-4 text-green-400">
+                                <i class="fas fa-plus-circle mr-2"></i> Strengths
+                            </h4>
+                            <p class="text-gray-300">{{ swot_analysis.strengths }}</p>
+                        </div>
+                        
+                        <div class="swot-item swot-weaknesses">
+                            <h4 class="text-xl font-bold mb-4 text-red-400">
+                                <i class="fas fa-minus-circle mr-2"></i> Weaknesses
+                            </h4>
+                            <p class="text-gray-300">{{ swot_analysis.weaknesses }}</p>
+                        </div>
+                        
+                        <div class="swot-item swot-opportunities">
+                            <h4 class="text-xl font-bold mb-4 text-blue-400">
+                                <i class="fas fa-arrow-up-circle mr-2"></i> Opportunities
+                            </h4>
+                            <p class="text-gray-300">{{ swot_analysis.opportunities }}</p>
+                        </div>
+                        
+                        <div class="swot-item swot-threats">
+                            <h4 class="text-xl font-bold mb-4 text-yellow-400">
+                                <i class="fas fa-exclamation-circle mr-2"></i> Threats
+                            </h4>
+                            <p class="text-gray-300">{{ swot_analysis.threats }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risks Tab -->
+            <div id="risks-tab" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div class="glass-card p-6">
+                            <h4 class="text-lg font-bold mb-4 text-red-400">
+                                <i class="fas fa-chart-line mr-2"></i> Market Risks
+                            </h4>
+                            <p class="text-gray-300">{{ risk_analysis.market_risks }}</p>
+                        </div>
+                        
+                        <div class="glass-card p-6">
+                            <h4 class="text-lg font-bold mb-4 text-orange-400">
+                                <i class="fas fa-dollar-sign mr-2"></i> Financial Risks
+                            </h4>
+                            <p class="text-gray-300">{{ risk_analysis.financial_risks }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="glass-card p-6">
+                            <h4 class="text-lg font-bold mb-4 text-yellow-400">
+                                <i class="fas fa-cogs mr-2"></i> Operational Risks
+                            </h4>
+                            <p class="text-gray-300">{{ risk_analysis.operational_risks }}</p>
+                        </div>
+                        
+                        <div class="glass-card p-6">
+                            <h4 class="text-lg font-bold mb-4 text-purple-400">
+                                <i class="fas fa-gavel mr-2"></i> Legal Risks
+                            </h4>
+                            <p class="text-gray-300">{{ risk_analysis.legal_risks }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations Tab -->
+            <div id="recommendations-tab" class="tab-content hidden">
+                <div class="glass-card p-8">
+                    <h3 class="text-2xl font-bold mb-8 text-white">
+                        <i class="fas fa-lightbulb mr-3 text-accent"></i> AI Recommendations
+                    </h3>
+                    <div class="space-y-6">
+                        {% for suggestion in suggestions %}
+                        <div class="recommendation-card p-6 recommendation-{{ suggestion.priority|lower }}">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h4 class="text-lg font-bold text-white">{{ suggestion.suggestion_type }}</h4>
+                                    <div class="flex gap-2 mt-2">
+                                        <span class="px-2 py-1 rounded text-xs font-medium
+                                            {% if suggestion.priority == 'High' %}bg-red-500 text-white{% elif suggestion.priority == 'Medium' %}bg-yellow-500 text-white{% else %}bg-green-500 text-white{% endif %}">
+                                            {{ suggestion.priority }} Priority
+                                        </span>
+                                        <span class="px-2 py-1 rounded text-xs font-medium bg-gray-600 text-white">
+                                            {{ suggestion.implementation_difficulty }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-gray-300">{{ suggestion.suggestion_text }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center mt-12">
+            <button onclick="window.print()" class="glow-button mr-4">
+                <i class="fas fa-download mr-2"></i> Export Report
+            </button>
+            <a href="{% url 'analyzer:my_ideas' %}" class="glow-button glow-button-accent">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Ideas
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.add('hidden');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + '-tab').classList.remove('hidden');
+    
+    // Add active class to clicked button
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+}
+
+// Animate elements on scroll
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animate-slide-up');
+        }
+    });
+}, observerOptions);
+
+// Observe all metric cards
+document.querySelectorAll('.metric-card').forEach(card => {
+    observer.observe(card);
+});
+
+// Add smooth parallax effect
+window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    const parallax = document.querySelector('.floating-orb');
+    if (parallax) {
+        parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
+    }
+});
+</script>
+{% endblock %}

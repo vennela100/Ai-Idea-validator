@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voice Assistant Test</title>
+</head>
+<body>
+    <h1>Voice Assistant Test</h1>
+    <p>Testing voice assistant functionality...</p>
+    
+    <script>
+        // Test the voice assistant page directly
+        console.log('🧪 Testing voice assistant page...');
+        
+        // Check if page loads
+        window.addEventListener('load', function() {
+            console.log('✅ Page loaded successfully');
+            
+            // Check if elements exist
+            const speechTextBox = document.getElementById('speechTextBox');
+            const analyzeButton = document.getElementById('analyzeButton');
+            const analysisResults = document.getElementById('analysisResults');
+            
+            console.log('🎨 Elements found:', {
+                speechTextBox: !!speechTextBox,
+                analyzeButton: !!analyzeButton,
+                analysisResults: !!analysisResults
+            });
+            
+            if (!speechTextBox) console.error('❌ speechTextBox not found');
+            if (!analyzeButton) console.error('❌ analyzeButton not found');
+            if (!analysisResults) console.error('❌ analysisResults not found');
+            
+            if (speechTextBox && analyzeButton && analysisResults) {
+                console.log('✅ All elements found - voice assistant should work!');
+            }
+        });
+    </script>
+</body>
+</html>

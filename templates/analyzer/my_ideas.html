@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}My Business Ideas - AI Business Idea Validator{% endblock %}
+
+{% block extra_css %}
+<style>
+.gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">My Business Ideas</h1>
+            <p class="text-lg text-gray-600">View and manage your analyzed business ideas</p>
+        </div>
+
+        {% if ideas %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for idea in ideas %}
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                        <div class="gradient-bg p-6">
+                            <h3 class="text-xl font-bold text-white mb-2">{{ idea.title }}</h3>
+                            <p class="text-purple-100 text-sm">{{ idea.industry }}</p>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-gray-600 mb-4 line-clamp-3">{{ idea.description|truncatewords:20 }}</p>
+                            
+                            {% if idea.validationreport %}
+                                <div class="mb-4">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-700">Overall Score</span>
+                                        <span class="text-lg font-bold {% if idea.validationreport.overall_score >= 80 %}text-green-600{% elif idea.validationreport.overall_score >= 60 %}text-yellow-600{% else %}text-red-600{% endif %}">{{ idea.validationreport.overall_score }}/100</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-purple-600 h-2 rounded-full" style="width: {{ idea.validationreport.overall_score }}%;"></div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if idea.validationreport.recommendation == 'Proceed' %}bg-green-100 text-green-800{% elif idea.validationreport.recommendation == 'Reconsider' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                            {{ idea.validationreport.recommendation }}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                                <span><i class="fas fa-calendar mr-1"></i> {{ idea.created_at|date:"M d, Y" }}</span>
+                                <span><i class="fas fa-clock mr-1"></i> {{ idea.created_at|date:"g:i A" }}</span>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <a href="{% url 'analyzer:idea_detail' idea.id %}" 
+                                   class="flex-1 bg-purple-600 text-white text-center px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                                    <i class="fas fa-eye mr-1"></i> View Details
+                                </a>
+                                <button onclick="deleteIdea('{{ idea.id }}')" 
+                                        class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-lightbulb text-gray-400 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">No Business Ideas Yet</h3>
+                <p class="text-gray-500 mb-6">Start analyzing your business ideas to see them here.</p>
+                <a href="{% url 'analyzer:home' %}" 
+                   class="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+                    <i class="fas fa-plus mr-2"></i> Analyze Your First Idea
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Delete Business Idea?</h3>
+            <p class="text-gray-600 mb-6">This action cannot be undone. All analysis data will be permanently deleted.</p>
+            <div class="flex space-x-4">
+                <button onclick="closeDeleteModal()" 
+                        class="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="confirmDelete()" 
+                        class="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let ideaToDelete = null;
+
+    function deleteIdea(ideaId) {
+        ideaToDelete = ideaId;
+        document.getElementById('deleteModal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.add('hidden');
+        ideaToDelete = null;
+    }
+
+    async function confirmDelete() {
+        if (!ideaToDelete) return;
+
+        showLoading();
+
+        try {
+            const response = await fetch(`/api/ideas/${ideaToDelete}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                }
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error deleting idea');
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        } finally {
+            hideLoading();
+            closeDeleteModal();
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,894 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Business Assistant - Chat{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ChatGPT-style AI Assistant Chat */
+.chat-container {
+    display: flex;
+    height: calc(100vh - 64px);
+    background: #f9f9f9;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 280px;
+    background: #202123;
+    color: #ececf1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #444654;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #444654;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 600;
+    color: #ececf1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-icon {
+    font-size: 24px;
+}
+
+.new-chat-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid #444654;
+    padding: 12px 16px;
+    border-radius: 6px;
+    color: #ececf1;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.new-chat-btn:hover {
+    background: #343541;
+    border-color: #565869;
+}
+
+.chat-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.chat-history-item {
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-history-item:hover {
+    background: #343541;
+}
+
+.chat-history-item.active {
+    background: #343541;
+    border-color: #565869;
+}
+
+.chat-title {
+    flex: 1;
+    font-size: 14px;
+    color: #ececf1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.delete-chat {
+    opacity: 0;
+    background: transparent;
+    border: none;
+    color: #8e8ea0;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 12px;
+}
+
+.chat-history-item:hover .delete-chat {
+    opacity: 1;
+}
+
+.delete-chat:hover {
+    background: #444654;
+    color: #ef4444;
+}
+
+/* MAIN CHAT AREA */
+.main-chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #343541;
+}
+
+.chat-header {
+    background: #343541;
+    padding: 20px 24px;
+    border-bottom: 1px solid #444654;
+}
+
+.chat-title-main {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ececf1;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.message {
+    display: flex;
+    gap: 16px;
+    max-width: 768px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.message.user {
+    flex-direction: row-reverse;
+}
+
+.message-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.message.ai .message-avatar {
+    background: #10a37f;
+    color: white;
+}
+
+.message.user .message-avatar {
+    background: #5436da;
+    color: white;
+}
+
+.message-content {
+    flex: 1;
+    line-height: 1.6;
+}
+
+.message-text {
+    background: #444654;
+    padding: 12px 16px;
+    border-radius: 6px;
+    color: #ececf1;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.message.user .message-text {
+    background: #5436da;
+}
+
+.message-time {
+    font-size: 11px;
+    color: #8e8ea0;
+    margin-top: 4px;
+}
+
+/* INPUT AREA */
+.chat-input-container {
+    padding: 24px;
+    background: #343541;
+    border-top: 1px solid #444654;
+}
+
+.input-wrapper {
+    max-width: 768px;
+    margin: 0 auto;
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.chat-input {
+    flex: 1;
+    background: #40414f;
+    border: 1px solid #444654;
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #ececf1;
+    font-size: 16px;
+    resize: none;
+    outline: none;
+    max-height: 200px;
+    min-height: 44px;
+    font-family: inherit;
+}
+
+.chat-input:focus {
+    border-color: #10a37f;
+}
+
+.input-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.mic-btn {
+    background: transparent;
+    border: 1px solid #444654;
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #8e8ea0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 44px;
+}
+
+.mic-btn:hover {
+    background: #444654;
+    color: #ececf1;
+}
+
+.mic-btn.listening {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+}
+
+.send-btn {
+    background: #10a37f;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 44px;
+}
+
+.send-btn:hover:not(:disabled) {
+    background: #0d8f6e;
+}
+
+.send-btn:disabled {
+    background: #444654;
+    color: #8e8ea0;
+    cursor: not-allowed;
+}
+
+/* LOADING STATES */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 16px;
+    background: #444654;
+    border-radius: 6px;
+    color: #8e8ea0;
+    font-size: 14px;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #8e8ea0;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-10px);
+    }
+}
+
+/* EMPTY STATE */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #8e8ea0;
+}
+
+.empty-state h3 {
+    font-size: 24px;
+    margin-bottom: 12px;
+    color: #ececf1;
+}
+
+.empty-state p {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 240px;
+    }
+    
+    .chat-messages {
+        padding: 16px;
+    }
+    
+    .chat-input-container {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 640px) {
+    .chat-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: 200px;
+        border-right: none;
+        border-bottom: 1px solid #444654;
+    }
+    
+    .chat-history {
+        display: flex;
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: 8px;
+        padding: 8px;
+    }
+    
+    .chat-history-item {
+        min-width: 150px;
+        margin: 0;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">🤖</span>
+                AI Business Assistant
+            </div>
+            <button class="new-chat-btn" onclick="createNewChat()">
+                <span>+</span>
+                New Chat
+            </button>
+        </div>
+        
+        <div class="chat-history" id="chatHistory">
+            {% for conversation in conversations %}
+            <div class="chat-history-item {% if forloop.first %}active{% endif %}" 
+                 data-conversation-id="{{ conversation.id }}"
+                 onclick="loadConversation('{{ conversation.id }}')">
+                <div class="chat-title">{{ conversation.title }}</div>
+                <button class="delete-chat" onclick="deleteConversation(event, '{{ conversation.id }}')">🗑️</button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- MAIN CHAT AREA -->
+    <div class="main-chat">
+        <div class="chat-header">
+            <div class="chat-title-main" id="chatTitle">AI Business Assistant</div>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="empty-state">
+                <h3>Welcome to AI Business Assistant</h3>
+                <p>I'm here to help you with business ideas, market analysis, competitor research, and strategic advice.</p>
+                <p>Ask me anything like:</p>
+                <p>• "What's the market demand for an AI fitness app?"<br>
+                   • "Who are the competitors in online tutoring?"<br>
+                   • "What risks should I consider for a food delivery startup?"</p>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <div class="input-wrapper">
+                <textarea 
+                    id="chatInput" 
+                    class="chat-input" 
+                    placeholder="Ask me about your business idea..."
+                    rows="1"
+                    onkeydown="handleKeyDown(event)"
+                    oninput="autoResize(this)"></textarea>
+                
+                <div class="input-actions">
+                    <button class="mic-btn" id="micBtn" onclick="toggleVoiceInput()" title="Voice Input">
+                        🎤
+                    </button>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled title="Send Message">
+                        ➤
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Chat state
+let currentConversationId = null;
+let isTyping = false;
+
+// Voice recognition setup
+let recognition;
+let isListening = false;
+
+if ('webkitSpeechRecognition' in window) {
+    recognition = new webkitSpeechRecognition();
+} else if ('SpeechRecognition' in window) {
+    recognition = new SpeechRecognition();
+}
+
+if (recognition) {
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    
+    recognition.onresult = function(event) {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            transcript += event.results[i][0].transcript;
+        }
+        
+        const input = document.getElementById('chatInput');
+        input.value = transcript;
+        autoResize(input);
+        updateSendButton();
+    };
+    
+    recognition.onerror = function(event) {
+        console.error('Speech recognition error:', event.error);
+        stopVoiceInput();
+    };
+    
+    recognition.onend = function() {
+        stopVoiceInput();
+    };
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('chatInput');
+    input.addEventListener('input', updateSendButton);
+    
+    // Load first conversation if available
+    const firstChat = document.querySelector('.chat-history-item');
+    if (firstChat) {
+        loadConversation(firstChat.dataset.conversationId);
+    }
+});
+
+function updateSendButton() {
+    const input = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.disabled = !input.value.trim();
+}
+
+function autoResize(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+}
+
+function handleKeyDown(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (!message || isTyping) return;
+    
+    isTyping = true;
+    input.value = '';
+    autoResize(input);
+    updateSendButton();
+    
+    // Add user message
+    addMessage('user', message);
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    try {
+        const response = await fetch('/chatbot/send/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                message: message,
+                conversation_id: currentConversationId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Update conversation if new
+            if (!currentConversationId && data.conversation_id) {
+                currentConversationId = data.conversation_id;
+                updateChatHistory(data.conversation_id, data.conversation_title);
+            }
+            
+            // Remove typing indicator and add AI response
+            hideTypingIndicator();
+            addMessage('ai', data.ai_response.message);
+            
+            // Auto-play voice response
+            setTimeout(() => speakText(data.ai_response.message), 500);
+        } else {
+            hideTypingIndicator();
+            addMessage('ai', 'Sorry, I encountered an error. Please try again.');
+        }
+    } catch (error) {
+        console.error('Send message error:', error);
+        hideTypingIndicator();
+        addMessage('ai', 'Network error. Please check your connection and try again.');
+    } finally {
+        isTyping = false;
+    }
+}
+
+function addMessage(sender, text) {
+    const messagesContainer = document.getElementById('chatMessages');
+    
+    // Remove empty state if exists
+    const emptyState = messagesContainer.querySelector('.empty-state');
+    if (emptyState) {
+        emptyState.remove();
+    }
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = sender === 'user' ? 'U' : 'AI';
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    
+    const messageText = document.createElement('div');
+    messageText.className = 'message-text';
+    messageText.textContent = text;
+    
+    const time = document.createElement('div');
+    time.className = 'message-time';
+    time.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    content.appendChild(messageText);
+    content.appendChild(time);
+    
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(content);
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function showTypingIndicator() {
+    const messagesContainer = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message ai';
+    typingDiv.id = 'typingIndicator';
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = 'AI';
+    
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    
+    const indicator = document.createElement('div');
+    indicator.className = 'typing-indicator';
+    indicator.innerHTML = `
+        <span>AI is thinking</span>
+        <div class="typing-dots">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+    `;
+    
+    content.appendChild(indicator);
+    typingDiv.appendChild(avatar);
+    typingDiv.appendChild(content);
+    
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function hideTypingIndicator() {
+    const indicator = document.getElementById('typingIndicator');
+    if (indicator) {
+        indicator.remove();
+    }
+}
+
+async function createNewChat() {
+    try {
+        const response = await fetch('/chatbot/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentConversationId = data.conversation_id;
+            updateChatHistory(data.conversation_id, data.title);
+            loadConversation(data.conversation_id);
+        }
+    } catch (error) {
+        console.error('Create conversation error:', error);
+    }
+}
+
+async function loadConversation(conversationId) {
+    try {
+        const response = await fetch(`/chatbot/conversation/${conversationId}/`);
+        const data = await response.json();
+        
+        if (data.success) {
+            currentConversationId = conversationId;
+            document.getElementById('chatTitle').textContent = data.conversation_title;
+            
+            // Update active state in sidebar
+            document.querySelectorAll('.chat-history-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-conversation-id="${conversationId}"]`).classList.add('active');
+            
+            // Load messages
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.innerHTML = '';
+            
+            data.messages.forEach(msg => {
+                addMessage(msg.sender, msg.message);
+            });
+        }
+    } catch (error) {
+        console.error('Load conversation error:', error);
+    }
+}
+
+async function deleteConversation(event, conversationId) {
+    event.stopPropagation();
+    
+    if (!confirm('Are you sure you want to delete this conversation?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/chatbot/delete/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                conversation_id: conversationId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Remove from sidebar
+            const chatItem = document.querySelector(`[data-conversation-id="${conversationId}"]`);
+            chatItem.remove();
+            
+            // If this was the active conversation, load another or show empty state
+            if (currentConversationId === conversationId) {
+                currentConversationId = null;
+                const remainingChats = document.querySelectorAll('.chat-history-item');
+                if (remainingChats.length > 0) {
+                    loadConversation(remainingChats[0].dataset.conversationId);
+                } else {
+                    showEmptyState();
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Delete conversation error:', error);
+    }
+}
+
+function showEmptyState() {
+    const messagesContainer = document.getElementById('chatMessages');
+    messagesContainer.innerHTML = `
+        <div class="empty-state">
+            <h3>Welcome to AI Business Assistant</h3>
+            <p>I'm here to help you with business ideas, market analysis, competitor research, and strategic advice.</p>
+            <p>Ask me anything like:</p>
+            <p>• "What's the market demand for an AI fitness app?"<br>
+               • "Who are the competitors in online tutoring?"<br>
+               • "What risks should I consider for a food delivery startup?"</p>
+        </div>
+    `;
+    document.getElementById('chatTitle').textContent = 'AI Business Assistant';
+}
+
+function updateChatHistory(conversationId, title) {
+    const chatHistory = document.getElementById('chatHistory');
+    
+    // Remove empty state message if exists
+    const emptyItem = chatHistory.querySelector('.empty-history');
+    if (emptyItem) {
+        emptyItem.remove();
+    }
+    
+    // Check if conversation already exists
+    let chatItem = document.querySelector(`[data-conversation-id="${conversationId}"]`);
+    
+    if (!chatItem) {
+        // Create new chat item
+        chatItem = document.createElement('div');
+        chatItem.className = 'chat-history-item active';
+        chatItem.dataset.conversationId = conversationId;
+        chatItem.onclick = () => loadConversation(conversationId);
+        
+        chatItem.innerHTML = `
+            <div class="chat-title">${title}</div>
+            <button class="delete-chat" onclick="deleteConversation(event, ${conversationId})">🗑️</button>
+        `;
+        
+        // Add to top of list
+        chatHistory.insertBefore(chatItem, chatHistory.firstChild);
+    } else {
+        // Update existing
+        chatItem.querySelector('.chat-title').textContent = title;
+        chatItem.classList.add('active');
+    }
+    
+    // Remove active class from others
+    document.querySelectorAll('.chat-history-item:not([data-conversation-id="' + conversationId + '"])').forEach(item => {
+        item.classList.remove('active');
+    });
+}
+
+// Voice input functions
+function toggleVoiceInput() {
+    if (!recognition) {
+        alert('Voice input is not supported in your browser. Please try Chrome or Edge.');
+        return;
+    }
+    
+    if (isListening) {
+        stopVoiceInput();
+    } else {
+        startVoiceInput();
+    }
+}
+
+function startVoiceInput() {
+    recognition.start();
+    isListening = true;
+    
+    const micBtn = document.getElementById('micBtn');
+    micBtn.classList.add('listening');
+    micBtn.innerHTML = '⏹️';
+    micBtn.title = 'Stop Recording';
+}
+
+function stopVoiceInput() {
+    if (recognition && isListening) {
+        recognition.stop();
+    }
+    
+    isListening = false;
+    
+    const micBtn = document.getElementById('micBtn');
+    micBtn.classList.remove('listening');
+    micBtn.innerHTML = '🎤';
+    micBtn.title = 'Voice Input';
+}
+
+// Text-to-speech function
+function speakText(text) {
+    if ('speechSynthesis' in window) {
+        // Cancel any ongoing speech
+        speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        utterance.volume = 0.8;
+        
+        speechSynthesis.speak(utterance);
+    }
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}
