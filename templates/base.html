@@ -1,827 +1,423 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Business Idea Validator</title>
+    <title>{% block title %}GenAI Startup Validator{% endblock %}</title>
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Outfit for pristine headers, Inter for supreme legibility -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
+    <!-- FontAwesome for Premium Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/alpine.min.js"></script>
-    
-    <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
-    <!-- GSAP for smooth animations -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    
-    <!-- Custom CSS -->
     <style>
-        /* Analytics Dashboard Theme */
+        :root {
+            /* DEEP GLASSMORPHISM DESIGN TOKENS */
+            
+            /* Backgrounds */
+            --bg-deep-space: #05070A;
+            --bg-gradient: radial-gradient(circle at top right, #111827, #05070A 60%);
+            
+            /* Glassmorphism Panels */
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.12);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            
+            /* Accents */
+            --accent-cyan: #00F0FF;
+            --accent-cyan-dim: rgba(0, 240, 255, 0.15);
+            --accent-purple: #8A2BE2;
+            --accent-gradient: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            
+            /* Typographic Colors */
+            --text-primary: #FFFFFF;
+            --text-secondary: #94A3B8;
+            --text-dim: #64748B;
+            
+            /* Semantic Colors for Results */
+            --score-high: #10B981;  /* Emerald */
+            --score-med: #FBBF24;   /* Amber */
+            --score-low: #EF4444;   /* Rose */
+            
+            /* Layout & Spacing */
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --transition-swift: 0.2s ease-out;
+            --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 50%, #16213e 100%);
-            color: #e8e8f0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-deep-space);
+            background-image: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            line-height: 1.6;
         }
-        
-        /* Dashboard Glass Cards */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-            transform-style: preserve-3d;
-            perspective: 1000px;
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
         }
-        
-        .glass-card:hover {
-            transform: translateY(-5px) rotateX(5deg) rotateY(5deg);
-            box-shadow: 0 20px 40px 0 rgba(0, 0, 0, 0.5),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        /* Dashboard Buttons */
-        .glow-button {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-weight: 600;
-            padding: 12px 24px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            transform-style: preserve-3d;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .glow-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-        
-        .glow-button:hover::before {
-            left: 100%;
-        }
-        
-        .glow-button:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.7),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        }
-        
-        .glow-button-accent {
-            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        }
-        
-        .glow-button-accent:hover {
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.7),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        }
-        
-        /* Dashboard Navigation */
-        .nav-glass {
-            background: rgba(15, 15, 30, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-        
-        /* Dashboard Cards */
-        .card-3d {
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-            perspective: 1000px;
-        }
-        
-        .card-3d:hover {
-            transform: rotateY(10deg) rotateX(-10deg) scale(1.05);
-        }
-        
-        .card-3d-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-        }
-        
-        /* Dashboard Feature Cards */
-        .feature-card {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.05));
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transform-style: preserve-3d;
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        }
-        
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.1), transparent);
-            transform: rotate(45deg);
-            transition: all 0.6s;
-            opacity: 0;
-        }
-        
-        .feature-card:hover::before {
-            animation: shimmer 0.6s ease-in-out;
-        }
-        
-        @keyframes shimmer {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
-            box-shadow: 0 25px 50px rgba(59, 130, 246, 0.3),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            border-color: rgba(59, 130, 246, 0.3);
-        }
-        
-        /* Dashboard Text Colors */
-        .gradient-text {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+
+        .text-gradient {
+            background: var(--accent-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         
-        /* Dashboard Loading */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 15, 30, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            backdrop-filter: blur(5px);
+        a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            transition: var(--transition-swift);
         }
         
-        .ai-loader {
-            width: 60px;
-            height: 60px;
-            border: 3px solid rgba(59, 130, 246, 0.3);
-            border-top: 3px solid #3b82f6;
+        a:hover {
+            color: #FFFFFF;
+            text-shadow: 0 0 8px var(--accent-cyan-dim);
+        }
+
+        /* Essential Layout */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Global Navbar */
+        .navbar {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            background: rgba(5, 7, 10, 0.7);
+            border-bottom: 1px solid var(--glass-border);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            transition: var(--transition-smooth);
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 72px;
+        }
+
+        .nav-brand {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-brand svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover, 
+        .nav-links a.active {
+            color: var(--text-primary);
+        }
+
+        /* Core Glass Component */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--glass-shadow);
+            transition: var(--transition-smooth);
+        }
+
+        .glass-panel:hover {
+            border-color: var(--glass-highlight);
+            transform: translateY(-2px);
+        }
+
+        /* Premium Buttons */
+        .btn-premium {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--accent-cyan);
+            padding: 0.75rem 1.5rem;
+            border-radius: 99px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-premium:hover {
+            background: var(--accent-cyan-dim);
+            box-shadow: 0 0 20px var(--accent-cyan-dim);
+            color: #FFF;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: #FFF;
+            border: none;
+            padding: 0.75rem 1.75rem;
+            border-radius: 99px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.2);
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 240, 255, 0.4);
+            color: #FFF;
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-icon-only {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-swift);
+        }
+        
+        .btn-icon-only:hover {
+            background: var(--glass-highlight);
+            color: var(--text-primary);
+        }
+
+        /* Form Inputs */
+        .premium-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem;
+            transition: var(--transition-smooth);
+            outline: none;
+        }
+        
+        .premium-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .premium-input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 1px var(--accent-cyan), 0 0 20px var(--accent-cyan-dim);
+        }
+
+        /* Main Content Wrapper */
+        .main-content {
+            flex: 1;
+            margin-top: 72px; /* Navbar height */
+            padding: 3rem 0;
+            position: relative;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-deep-space);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--glass-border);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-dim);
+        }
+
+        /* Global UI Utilities */
+        .badge {
+            padding: 0.35rem 0.85rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .badge-ai { background: rgba(138, 43, 226, 0.15); color: #D8B4FE; border: 1px solid rgba(138, 43, 226, 0.3); }
+        .badge-heuristic { background: rgba(245, 158, 11, 0.15); color: #FDE68A; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+        /* Loader Overlay */
+        #global-loader {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(5, 7, 10, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        #global-loader.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--glass-border);
+            border-top-color: var(--accent-cyan);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        #loader-text {
+            margin-top: 1.5rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            letter-spacing: 1px;
+            animation: pulse 1.5s infinite;
         }
-        
-        .score-circle {
-            transition: stroke-dashoffset 0.5s ease-in-out;
-        }
-        
-        /* Dashboard Particles */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-        }
-        
-        /* Dashboard Hero Section */
-        .hero-3d {
-            position: relative;
-            overflow: hidden;
-            transform-style: preserve-3d;
-            perspective: 1000px;
-        }
-        
-        .hero-title-3d {
-            transform: translateZ(50px);
-            text-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
-            animation: titleFloat 4s ease-in-out infinite;
-        }
-        
-        @keyframes titleFloat {
-            0%, 100% { transform: translateZ(50px) translateY(0); }
-            50% { transform: translateZ(50px) translateY(-10px); }
-        }
-        
-        /* Dashboard Interactive Elements */
-        .interactive-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .interactive-card:hover {
-            transform: translateY(-5px) scale(1.02);
-        }
-        
-        /* Dashboard 3D Globe */
-        .globe-container {
-            width: 300px;
-            height: 300px;
-            position: relative;
-            margin: 0 auto;
-            perspective: 1000px;
-        }
-        
-        /* Dashboard Floating Animation */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(2deg); }
-        }
-        
-        .floating {
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        /* Dashboard Glow Effect */
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
-            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
-        }
-        
-        .glowing {
-            animation: glow 2s ease-in-out infinite;
-        }
-        
-        /* Dashboard Smooth Scroll */
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        /* Responsive Dashboard */
-        @media (max-width: 768px) {
-            .feature-card:hover {
-                transform: translateY(-5px);
-            }
-            
-            .globe-container {
-                width: 200px;
-                height: 200px;
-            }
-        }
-        
-        /* Main Content Padding for Fixed Nav */
-main {
-    padding-top: 64px; /* Height of fixed navigation */
-    min-height: calc(100vh - 64px);
-}
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 
-/* Dashboard Navigation Links */
-        .nav-link {
-            color: #e8e8f0;
-            transition: all 0.3s ease;
-            position: relative;
+        /* Mobile specific adjustments */
+        @media (max-width: 768px) {
+            .nav-links { display: none; } /* Could add a hamburger menu here later */
+            .main-content { padding: 1.5rem 0; }
         }
         
-        .nav-link:hover {
-            color: #3b82f6;
-            text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-        }
-        
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-            transition: width 0.3s ease;
-        }
-        
-        .nav-link:hover::after {
-            width: 100%;
-        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Dashboard Navigation -->
-    <nav class="nav-glass fixed top-0 left-0 right-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="flex items-center">
-                            <i class="fas fa-brain text-blue-500 text-2xl mr-2"></i>
-                            <span class="text-xl font-bold text-white">AI Idea Validator</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Navigation Links -->
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="{% url 'analyzer:home' %}" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-all duration-300">
-                            <i class="fas fa-home mr-2"></i>Home
-                        </a>
-                        <a href="{% url 'analyzer:analyze_idea' %}" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-all duration-300">
-                            <i class="fas fa-chart-line mr-2"></i>Analyze
-                        </a>
-                        <a href="{% url 'analyzer:demo_mode' %}" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-all duration-300">
-                            <i class="fas fa-play mr-2"></i>Try Demo
-                        </a>
-                        <a href="{% url 'analyzer:analytics_dashboard' %}" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-all duration-300">
-                            <i class="fas fa-chart-bar mr-2"></i>Analytics Dashboard
-                        </a>
-                        <a href="{% url 'chatbot:chat_interface' %}" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-all duration-300">
-                            <i class="fas fa-robot mr-2"></i>AI Assistant
-                        </a>
-                        <a href="{% url 'analyzer:voice_assistant' %}" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-all duration-300">
-                            <i class="fas fa-microphone mr-2"></i>Voice Assistant
-                        </a>
-                        <a href="{% url 'analyzer:about' %}" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-white/10 transition-all duration-300">
-                            <i class="fas fa-info-circle mr-2"></i>About
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- User Menu -->
-                <div class="flex items-center">
-                    {% if user.is_authenticated %}
-                        <div class="flex items-center space-x-4">
-                            <a href="{% url 'auth:logout_view' %}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:shadow-lg hover:shadow-red-500/25">
-                                <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                            </a>
-                        </div>
-                    {% else %}
-                        <a href="{% url 'auth:mock_login' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25">
-                            <i class="fas fa-sign-in-alt mr-2"></i> Login
-                        </a>
-                    {% endif %}
-                    
-                    <!-- Mobile menu button -->
-                    <div class="md:hidden">
-                        <button type="button" class="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" onclick="toggleMobileMenu()">
-                            <i class="fas fa-bars text-lg"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Mobile menu -->
-        <div class="md:hidden" id="mobileMenu" style="display: none;">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="{% url 'analyzer:home' %}" class="nav-link block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10">
-                    <i class="fas fa-home mr-2"></i>Home
-                </a>
-                <a href="{% url 'analyzer:analyze_idea' %}" class="nav-link block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10">
-                    <i class="fas fa-chart-line mr-2"></i>Analyze
-                </a>
-                <a href="{% url 'analyzer:demo_mode' %}" class="nav-link block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10">
-                    <i class="fas fa-play mr-2"></i>Try Demo
-                </a>
-                <a href="{% url 'analyzer:analytics_dashboard' %}" class="nav-link block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10">
-                    <i class="fas fa-chart-bar mr-2"></i>Analytics Dashboard
-                </a>
-                <a href="{% url 'chatbot:chat_interface' %}" class="nav-link block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10">
-                    <i class="fas fa-robot mr-2"></i>AI Assistant
-                </a>
-                <a href="{% url 'analyzer:voice_assistant' %}" class="nav-link block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10">
-                    <i class="fas fa-microphone mr-2"></i>Voice Assistant
-                </a>
-                <a href="{% url 'analyzer:about' %}" class="nav-link block px-3 py-2 rounded-md text-base font-medium hover:bg-white/10">
-                    <i class="fas fa-info-circle mr-2"></i>About
-                </a>
+
+    <!-- Unified Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="{% url 'analyzer:home' %}" class="nav-brand">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="url(#paint0_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="url(#paint0_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="url(#paint0_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="paint0_linear" x1="2" y1="12" x2="22" y2="12" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#00F0FF"/>
+                            <stop offset="1" stop-color="#8A2BE2"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                AI Idea Business Validator
+            </a>
+            <div class="nav-links">
+                <a href="{% url 'analyzer:home' %}"><i class="fa-solid fa-house"></i> Dashboard</a>
+                <a href="{% url 'voice_assistant:voice_interface' %}"><i class="fa-solid fa-microphone"></i> Voice Agent</a>
+                <!-- We link to chat passing idea if possible, or just open base chat -->
+                <a href="{% url 'chatbot:chat_interface' %}"><i class="fa-solid fa-comment-dots"></i> AI Strategist</a>
+                <a href="{% url 'auth:login' %}" class="btn-premium"><i class="fa-solid fa-user-astronaut"></i> Sign In</a>
             </div>
         </div>
     </nav>
 
-    <!-- Messages -->
-    {% if messages %}
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-            {% for message in messages %}
-                <div class="glass-card p-4 mb-4 {% if message.tags %}{{ message.tags }}{% endif %}">
-                    <div class="flex items-center">
-                        <i class="fas fa-{% if message.tags == 'success' %}check-circle text-green-400{% elif message.tags == 'error' %}exclamation-circle text-red-400{% elif message.tags == 'warning' %}exclamation-triangle text-yellow-400{% else %}info-circle text-blue-400{% endif %} mr-3"></i>
-                        <span class="text-white">{{ message }}</span>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <!-- Main Content -->
-    <main>
+    <!-- Main Dynamic Content -->
+    <main class="main-content">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-8 mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center">
-                <p>&copy; 2024 AI Business Idea Validator. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
-        <div class="bg-white rounded-lg p-8 flex flex-col items-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-            <p class="mt-4 text-gray-700">Analyzing your business idea...</p>
-        </div>
+    <!-- Global Loading Overlay used by Fetch APIs -->
+    <div id="global-loader">
+        <div class="spinner"></div>
+        <div id="loader-text">Analyzing Business Logic...</div>
     </div>
 
     <script>
-        // Show/hide loading overlay
-        function showLoading() {
-            document.getElementById('loadingOverlay').style.display = 'flex';
-        }
-        
-        function hideLoading() {
-            document.getElementById('loadingOverlay').style.display = 'none';
-        }
-
-        // Common utility functions
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD'
-            }).format(amount);
-        }
-
-        function getScoreColor(score) {
-            if (score >= 80) return 'text-green-600';
-            if (score >= 60) return 'text-yellow-600';
-            return 'text-red-600';
-        }
-
-        function getScoreBgColor(score) {
-            if (score >= 80) return 'bg-green-100';
-            if (score >= 60) return 'bg-yellow-100';
-            return 'bg-red-100';
-        }
-
-        function animateScore(element, targetScore) {
-            let currentScore = 0;
-            const increment = targetScore / 50;
-            const timer = setInterval(() => {
-                currentScore += increment;
-                if (currentScore >= targetScore) {
-                    currentScore = targetScore;
-                    clearInterval(timer);
-                }
-                element.textContent = Math.round(currentScore);
-            }, 20);
-        }
-
-        function changeLanguage(languageCode) {
-            // Create a form to submit language change
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/set-language/';
-            
-            // Add CSRF token
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = 'csrfmiddlewaretoken';
-            csrfToken.value = getCookie('csrftoken');
-            form.appendChild(csrfToken);
-            
-            // Add language code
-            const languageInput = document.createElement('input');
-            languageInput.type = 'hidden';
-            languageInput.name = 'language';
-            languageInput.value = languageCode;
-            form.appendChild(languageInput);
-            
-            // Add next page
-            const nextInput = document.createElement('input');
-            nextInput.type = 'hidden';
-            nextInput.name = 'next';
-            nextInput.value = window.location.pathname;
-            form.appendChild(nextInput);
-            
-            // Submit form
-            document.body.appendChild(form);
-            form.submit();
-        }
-
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
+        // Global utility functions for UI
+        window.UI = {
+            showLoading: function(text = "Processing...") {
+                document.getElementById('loader-text').innerText = text;
+                document.getElementById('global-loader').classList.add('active');
+            },
+            hideLoading: function() {
+                document.getElementById('global-loader').classList.remove('active');
+            },
+            getCookie: function(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
                     }
                 }
+                return cookieValue;
             }
-            return cookieValue;
-        }
-        
-        // 3D Globe and Particle Effects
-        class ThreeDGlobe {
-            constructor(containerId) {
-                this.container = document.getElementById(containerId);
-                if (!this.container) return;
-                
-                this.scene = new THREE.Scene();
-                this.camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-                this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-                
-                this.init();
-                this.createGlobe();
-                this.animate();
-            }
-            
-            init() {
-                this.renderer.setSize(300, 300);
-                this.renderer.setPixelRatio(window.devicePixelRatio);
-                this.container.appendChild(this.renderer.domElement);
-                this.camera.position.z = 2;
-                
-                // Lighting
-                const ambientLight = new THREE.AmbientLight(0x404040);
-                this.scene.add(ambientLight);
-                
-                const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-                directionalLight.position.set(5, 3, 5);
-                this.scene.add(directionalLight);
-            }
-            
-            createGlobe() {
-                // Create sphere
-                const geometry = new THREE.SphereGeometry(1, 32, 32);
-                const material = new THREE.MeshPhongMaterial({
-                    color: 0x667eea,
-                    emissive: 0x667eea,
-                    emissiveIntensity: 0.2,
-                    shininess: 100,
-                    wireframe: true
-                });
-                
-                this.globe = new THREE.Mesh(geometry, material);
-                this.scene.add(this.globe);
-                
-                // Add particles
-                this.createParticles();
-            }
-            
-            createParticles() {
-                const particlesGeometry = new THREE.BufferGeometry();
-                const particlesCount = 500;
-                const posArray = new Float32Array(particlesCount * 3);
-                
-                for (let i = 0; i < particlesCount * 3; i++) {
-                    posArray[i] = (Math.random() - 0.5) * 5;
-                }
-                
-                particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-                const particlesMaterial = new THREE.PointsMaterial({
-                    size: 0.01,
-                    color: 0x764ba2,
-                    transparent: true,
-                    opacity: 0.8
-                });
-                
-                this.particles = new THREE.Points(particlesGeometry, particlesMaterial);
-                this.scene.add(this.particles);
-            }
-            
-            animate() {
-                requestAnimationFrame(() => this.animate());
-                
-                this.globe.rotation.x += 0.005;
-                this.globe.rotation.y += 0.01;
-                this.particles.rotation.y += 0.002;
-                
-                this.renderer.render(this.scene, this.camera);
-            }
-        }
-        
-        // Particle Background
-        class ParticleBackground {
-            constructor() {
-                this.canvas = document.createElement('canvas');
-                this.canvas.className = 'particles';
-                this.ctx = this.canvas.getContext('2d');
-                this.particles = [];
-                this.particleCount = 50;
-                
-                this.init();
-                this.animate();
-            }
-            
-            init() {
-                this.resize();
-                window.addEventListener('resize', () => this.resize());
-                
-                for (let i = 0; i < this.particleCount; i++) {
-                    this.particles.push({
-                        x: Math.random() * this.canvas.width,
-                        y: Math.random() * this.canvas.height,
-                        vx: (Math.random() - 0.5) * 0.5,
-                        vy: (Math.random() - 0.5) * 0.5,
-                        size: Math.random() * 3 + 1
-                    });
-                }
-                
-                document.body.appendChild(this.canvas);
-            }
-            
-            resize() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
-            }
-            
-            animate() {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                
-                this.particles.forEach(particle => {
-                    particle.x += particle.vx;
-                    particle.y += particle.vy;
-                    
-                    if (particle.x < 0 || particle.x > this.canvas.width) particle.vx *= -1;
-                    if (particle.y < 0 || particle.y > this.canvas.height) particle.vy *= -1;
-                    
-                    this.ctx.beginPath();
-                    this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-                    this.ctx.fillStyle = 'rgba(102, 126, 234, 0.5)';
-                    this.ctx.fill();
-                });
-                
-                requestAnimationFrame(() => this.animate());
-            }
-        }
-        
-        // GSAP Animations
-        function initGSAPAnimations() {
-            // Register ScrollTrigger
-            gsap.registerPlugin(ScrollTrigger);
-            
-            // Hero title animation
-            gsap.from('.hero-title-3d', {
-                duration: 1,
-                y: 50,
-                opacity: 0,
-                ease: 'power3.out'
-            });
-            
-            // Feature cards animation
-            gsap.utils.toArray('.feature-card').forEach((card, index) => {
-                gsap.from(card, {
-                    scrollTrigger: {
-                        trigger: card,
-                        start: 'top 80%',
-                        end: 'bottom 20%',
-                        toggleActions: 'play none none reverse'
-                    },
-                    duration: 0.8,
-                    y: 50,
-                    opacity: 0,
-                    delay: index * 0.1,
-                    ease: 'power3.out'
-                });
-            });
-            
-            // Floating elements
-            gsap.utils.toArray('.floating').forEach(element => {
-                gsap.to(element, {
-                    y: -20,
-                    duration: 3,
-                    repeat: -1,
-                    yoyo: true,
-                    ease: 'power1.inOut'
-                });
-            });
-            
-            // 3D card hover effects
-            document.querySelectorAll('.card-3d').forEach(card => {
-                card.addEventListener('mousemove', (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    
-                    const centerX = rect.width / 2;
-                    const centerY = rect.height / 2;
-                    
-                    const rotateX = (y - centerY) / 10;
-                    const rotateY = (centerX - x) / 10;
-                    
-                    gsap.to(card, {
-                        duration: 0.3,
-                        rotationX: rotateX,
-                        rotationY: rotateY,
-                        transformPerspective: 1000,
-                        ease: 'power2.out'
-                    });
-                });
-                
-                card.addEventListener('mouseleave', () => {
-                    gsap.to(card, {
-                        duration: 0.3,
-                        rotationX: 0,
-                        rotationY: 0,
-                        ease: 'power2.out'
-                    });
-                });
-            });
-        }
-        
-        // Initialize everything when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize 3D Globe if container exists
-            if (document.getElementById('globe-container')) {
-                new ThreeDGlobe('globe-container');
-            }
-            
-            // Initialize particle background
-            new ParticleBackground();
-            
-            // Initialize GSAP animations
-            initGSAPAnimations();
-            
-            // Smooth scroll for navigation links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-            });
-            
-            // Parallax effect for hero section
-            window.addEventListener('scroll', () => {
-                const scrolled = window.pageYOffset;
-                const parallax = document.querySelector('.hero-3d');
-                if (parallax) {
-                    parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
-                }
-            });
-        });
-        
-        // Mobile menu toggle
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            if (mobileMenu.style.display === 'none' || mobileMenu.style.display === '') {
-                mobileMenu.style.display = 'block';
-            } else {
-                mobileMenu.style.display = 'none';
-            }
-        }
-        
-        // Language change function
-        function changeLanguage(language) {
-            // Set cookie for language preference
-            document.cookie = `django_language=${language}; path=/; max-age=31536000`;
-            // Reload page to apply language
-            window.location.reload();
-        }
+        };
     </script>
-
+    
     {% block extra_js %}{% endblock %}
 </body>
 </html>

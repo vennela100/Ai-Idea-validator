@@ -47,7 +47,7 @@ def mock_login(request):
         else:
             # Add error message
             messages.error(request, 'Invalid username or password. Please try again.')
-            return redirect('auth_app:login')
+            return redirect('auth:login')
     
     return render(request, 'auth/login.html')
 
@@ -57,12 +57,12 @@ def logout_view(request):
     """Logout view"""
     logout(request)
     messages.success(request, 'You have been successfully logged out.')
-    return redirect('auth_app:mock_login')
+    return redirect('auth:mock_login')
 
 
 def login_required_redirect(request):
     """Redirect to login if not authenticated"""
     if not request.user.is_authenticated:
         messages.info(request, 'Please log in to access this page.')
-        return redirect('auth_app:mock_login')
+        return redirect('auth:mock_login')
     return None

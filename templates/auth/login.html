@@ -6,6 +6,7 @@
     <title>Login - AI Business Idea Validator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root {
             --primary: #7C3AED;
@@ -416,7 +417,7 @@
             {% endif %}
             
             <!-- Login Form -->
-            <form method="post" action="{% url 'auth_app:mock_login' %}">
+            <form method="post" action="{% url 'auth:mock_login' %}">
                 {% csrf_token %}
                 
                 <h2 class="form-title">Welcome Back</h2>
@@ -448,6 +449,28 @@
                 </div>
                 
                 <div class="button-group">
+                    <!-- Google Identity Services -->
+                    <div id="g_id_onload"
+                         data-client_id="885449350134-p7nineermvf3f8c337psqurcnc61l4e3.apps.googleusercontent.com"
+                         data-context="signin"
+                         data-ux_mode="popup"
+                         data-callback="handleCredentialResponse"
+                         data-auto_prompt="false">
+                    </div>
+                    
+                    <div class="g_id_signin" style="display: flex; justify-content: center; width: 100%; margin-bottom: 8px;"
+                         data-type="standard"
+                         data-shape="rectangular"
+                         data-theme="filled_black"
+                         data-text="continue_with"
+                         data-size="large"
+                         data-logo_alignment="left">
+                    </div>
+
+                    <div style="text-align: center; margin: 10px 0; color: var(--text-secondary);">
+                        <span style="background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.1);">OR TRADITIONAL LOGIN</span>
+                    </div>
+
                     <button type="submit" class="login-button">
                         <i class="fas fa-sign-in-alt"></i>
                         Login
@@ -468,6 +491,46 @@
     </div>
 
     <script>
+        // Handle Google Credential Response
+        async function handleCredentialResponse(response) {
+            const loginBtn = document.querySelector('.login-button');
+            const originalText = loginBtn.innerHTML;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+            
+            try {
+                const res = await fetch('/auth/api/google-login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({ credential: response.credential })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok && data.success) {
+                    // Store the JWT tokens for the API
+                    localStorage.setItem('access_token', data.tokens.access);
+                    localStorage.setItem('refresh_token', data.tokens.refresh);
+                    
+                    showNotification('Google Login Successful! Redirecting...', 'info');
+                    
+                    // The backend also logged us into the standard Django session
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else {
+                    showNotification(data.error || 'Google authentication failed', 'error');
+                    loginBtn.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error("Login error:", error);
+                showNotification('Network error during login', 'error');
+                loginBtn.innerHTML = originalText;
+            }
+        }
+
         // Create particle effects
         function createParticles() {
             const particlesContainer = document.getElementById('particles');

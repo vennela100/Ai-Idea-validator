@@ -1,84 +1,518 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}AI Idea Business Validator | Voice Assistant{% endblock %}
+
+{% block extra_css %}
+<style>
+    .voice-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 150px);
+        text-align: center;
+        padding: 2rem;
+        position: relative;
+    }
+    
+    /* Microphone Button */
+    .mic-stage {
+        position: relative;
+        margin: 4rem auto;
+        width: 160px;
+        height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mic-btn {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: var(--glass-bg);
+        border: 2px solid var(--glass-border);
+        color: var(--text-primary);
+        font-size: 2.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    
+    .mic-btn:hover {
+        transform: scale(1.05);
+        border-color: var(--accent-cyan);
+        box-shadow: 0 0 30px var(--accent-cyan-dim);
+    }
+
+    .mic-btn.listening {
+        background: rgba(0, 240, 255, 0.1);
+        border-color: var(--accent-cyan);
+        color: var(--accent-cyan);
+        animation: pulseHeartbeat 1.5s infinite;
+    }
+
+    /* Animated Rings */
+    .ring {
+        position: absolute;
+        border-radius: 50%;
+        border: 1px solid var(--accent-cyan);
+        opacity: 0;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .ring-1.active { width: 120px; height: 120px; animation: ripple 2s linear infinite; }
+    .ring-2.active { width: 140px; height: 140px; animation: ripple 2s linear infinite 0.6s; }
+    .ring-3.active { width: 160px; height: 160px; animation: ripple 2s linear infinite 1.2s; }
+
+    @keyframes pulseHeartbeat {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); box-shadow: 0 0 40px rgba(0,240,255,0.4); }
+    }
+
+    @keyframes ripple {
+        0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+        100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+    }
+
+    /* Analysis Result Elements (from Results Dashboard) */
+    .analysis-results-container {
+        display: none;
+        margin-top: 3rem;
+        width: 100%;
+        max-width: 1000px;
+        text-align: left;
+    }
+
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 1rem;
+    }
+    
+    .col-3 { grid-column: span 3; }
+    .col-6 { grid-column: span 6; }
+    .col-12 { grid-column: span 12; }
+
+    @media (max-width: 768px) {
+        .col-3, .col-6 { grid-column: span 12; }
+    }
+
+    .score-card {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem 0.5rem;
+    }
+    
+    .score-circle {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.75rem;
+        background: conic-gradient(var(--circle-color) var(--percentage), transparent 0);
+    }
+    .score-circle::before {
+        content: "";
+        position: absolute;
+        inset: 6px;
+        border-radius: 50%;
+        background: var(--bg-deep-space);
+    }
+    .score-value {
+        position: relative;
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--text-primary);
+    }
+
+    .swot-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+    .swot-box {
+        padding: 1rem;
+        border-radius: var(--radius-sm);
+        background: rgba(0,0,0,0.3);
+        border-left: 3px solid transparent;
+    }
+    .swot-s { border-color: var(--score-high); }
+    .swot-w { border-color: var(--score-low); }
+    .swot-o { border-color: var(--accent-cyan); }
+    .swot-t { border-color: var(--score-med); }
+
+    .swot-box h5 { color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .swot-box ul { list-style: none; font-size: 0.85rem; color: var(--text-secondary); }
+
+    .verdict-box {
+        background: linear-gradient(135deg, rgba(138,43,226,0.1), rgba(0,240,255,0.05));
+        border: 1px solid var(--accent-purple);
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .engine-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 99px;
+        font-size: 0.75rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-top: 1rem;
+    }
+    .badge-ai { background: var(--accent-purple-dim); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+    .badge-heuristic { background: rgba(255,165,0,0.1); color: orange; border: 1px solid orange; }
+
+    /* Circle Colors */
+    .circle-high { --circle-color: var(--score-high); }
+    .circle-med { --circle-color: var(--score-med); }
+    .circle-low { --circle-color: var(--score-low); }
+
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-    <div class="container mx-auto px-4 py-16">
-        <div class="max-w-4xl mx-auto">
-            <div class="text-center mb-16">
-                <h1 class="text-5xl font-bold text-white mb-6 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                    🎤 AI Voice Assistant
-                </h1>
-                <p class="text-xl text-gray-300 mb-8">
-                    Talk to our AI using natural voice commands
-                </p>
-            </div>
+<div class="container">
+    <div class="voice-container">
+        
+        <div class="text-center" style="margin-bottom: 2rem;">
+            <h1 class="text-gradient" style="font-size: 3rem; margin-bottom: 0.5rem;">Voice Intelligence</h1>
+            <p class="text-secondary">Say "Analyze my idea..." or ask strategic questions.</p>
+        </div>
 
-            <div class="bg-gray-800 bg-opacity-50 backdrop-blur-lg rounded-xl p-8 border border-cyan-500/20">
-                <div class="text-center">
-                    <div class="mb-8">
-                        <div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full mb-6">
-                            <i class="fas fa-microphone text-white text-4xl"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold text-white mb-4">Voice Commands</h2>
-                        <p class="text-gray-300 mb-6">
-                            Click the microphone button and speak your command
-                        </p>
+        <div class="mic-stage">
+            <div class="ring ring-1" id="r1"></div>
+            <div class="ring ring-2" id="r2"></div>
+            <div class="ring ring-3" id="r3"></div>
+            <button class="mic-btn" id="mic-btn" onclick="toggleRecording()">
+                <i class="fa-solid fa-microphone"></i>
+            </button>
+        </div>
+
+        <div class="transcript-area">
+            <p class="transcript-text" id="transcript">Tap the microphone to start.</p>
+        </div>
+
+        <!-- AI Response Area -->
+        <div class="glass-panel ai-response-box" id="ai-response">
+            <h4 style="color: var(--accent-cyan); margin-bottom: 1rem;">
+                <i class="fa-solid fa-bolt"></i> AI Agent Response
+            </h4>
+            <div id="response-content" style="font-size: 1.1rem; line-height: 1.6;"></div>
+            
+            <div id="engine-info"></div>
+        </div>
+
+        <!-- RICH ANALYSIS DASHBOARD (Hidden by default, shown on analysis intent) -->
+        <div class="analysis-results-container" id="analysis-dashboard">
+            <div class="results-grid">
+                
+                <!-- Score Cards -->
+                <div class="col-3 glass-panel score-card">
+                    <div class="score-circle" id="score-market">
+                        <span class="score-value" id="val-market">0</span>
                     </div>
-
-                    <div class="mb-8">
-                        <button onclick="startListening()" class="bg-gradient-to-r from-cyan-500 to-purple-500 text-white px-8 py-4 rounded-lg font-semibold hover:from-cyan-600 hover:to-purple-600 transition-all transform hover:scale-105">
-                            <i class="fas fa-microphone mr-2"></i> Start Voice
-                        </button>
+                    <span class="text-sm">Market Demand</span>
+                </div>
+                <div class="col-3 glass-panel score-card">
+                    <div class="score-circle" id="score-uniqueness">
+                        <span class="score-value" id="val-uniqueness">0</span>
                     </div>
-
-                    <div class="mb-8">
-                        <div class="bg-gray-900 bg-opacity-50 rounded-lg p-4 min-h-[100px]">
-                            <div id="transcript" class="text-gray-300 mb-4">
-                                <p class="text-sm text-gray-400">Your speech will appear here...</p>
-                            </div>
-                            <div id="response" class="text-cyan-400">
-                                <p class="text-sm text-gray-400">AI response will appear here...</p>
-                            </div>
-                        </div>
+                    <span class="text-sm">Uniqueness</span>
+                </div>
+                <div class="col-3 glass-panel score-card">
+                    <div class="score-circle" id="score-revenue">
+                        <span class="score-value" id="val-revenue">0</span>
                     </div>
+                    <span class="text-sm">Revenue</span>
+                </div>
+                <div class="col-3 glass-panel score-card">
+                    <div class="score-circle" id="score-risk">
+                        <span class="score-value" id="val-risk">0</span>
+                    </div>
+                    <span class="text-sm">Risk Factor</span>
+                </div>
 
-                    <div class="text-left">
-                        <h3 class="text-lg font-semibold text-white mb-4">Available Commands:</h3>
-                        <div class="grid md:grid-cols-2 gap-4 text-gray-300">
-                            <div class="bg-gray-900 bg-opacity-50 rounded-lg p-3">
-                                <code class="text-cyan-400">help</code>
-                                <p class="text-sm mt-1">Show available commands</p>
-                            </div>
-                            <div class="bg-gray-900 bg-opacity-50 rounded-lg p-3">
-                                <code class="text-cyan-400">analyze [idea]</code>
-                                <p class="text-sm mt-1">Analyze business idea</p>
-                            </div>
-                            <div class="bg-gray-900 bg-opacity-50 rounded-lg p-3">
-                                <code class="text-cyan-400">competitors [industry]</code>
-                                <p class="text-sm mt-1">Show competitors</p>
-                            </div>
-                            <div class="bg-gray-900 bg-opacity-50 rounded-lg p-3">
-                                <code class="text-cyan-400">market [industry]</code>
-                                <p class="text-sm mt-1">Market research</p>
-                            </div>
-                        </div>
+                <!-- SWOT -->
+                <div class="col-12 glass-panel">
+                    <h5 style="margin-bottom: 1rem; color: var(--accent-cyan);"><i class="fa-solid fa-border-all"></i> SWOT Analysis</h5>
+                    <div class="swot-grid" id="swot-container">
+                        <!-- Populated by JS -->
                     </div>
                 </div>
-            </div>
 
-            <div class="text-center mt-8">
-                <p class="text-gray-400 text-sm">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    Works best in Chrome or Edge browsers with microphone permission
-                </p>
+                <!-- Roadmap & Verdict -->
+                <div class="col-6 glass-panel">
+                    <h5 style="margin-bottom: 1rem; color: var(--accent-cyan);"><i class="fa-solid fa-road"></i> Strategic Roadmap</h5>
+                    <ul id="roadmap-list" style="list-style: none; font-size: 0.9rem;">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+
+                <div class="col-6 glass-panel verdict-box">
+                    <h5 style="color: var(--accent-purple); margin-bottom:0.5rem;">The Verdict</h5>
+                    <p id="verdict-text" style="font-weight: 500;"></p>
+                    
+                    <!-- Hidden form for POSTing data to dashboard -->
+                    <form id="dashboard-form" method="POST" action="{% url 'analyzer:results_dashboard' %}" style="margin-top: 1rem;">
+                        {% csrf_token %}
+                        <input type="hidden" name="analysis_data" id="analysis-payload-hidden">
+                        <button type="submit" class="btn-primary" style="font-size: 0.8rem; padding: 0.5rem 1rem;">
+                            View Full Report <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+                </div>
+
             </div>
         </div>
+
     </div>
 </div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-function startListening(){
-    alert("Voice assistant is coming soon! This is a test version.");
-}
+    const micBtn = document.getElementById('mic-btn');
+    const rings = [document.getElementById('r1'), document.getElementById('r2'), document.getElementById('r3')];
+    const transcriptEl = document.getElementById('transcript');
+    const responseBox = document.getElementById('ai-response');
+    const responseContent = document.getElementById('response-content');
+    const dashboardContainer = document.getElementById('analysis-dashboard');
+    const hiddenPayloadInput = document.getElementById('analysis-payload-hidden');
+
+    let isRecording = false;
+    let recognition = null;
+
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+        transcriptEl.innerText = "Speech Recognition API not supported in this browser.";
+        micBtn.disabled = true;
+        micBtn.style.opacity = '0.5';
+    } else {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            isRecording = true;
+            micBtn.classList.add('listening');
+            rings.forEach(r => r.classList.add('active'));
+            transcriptEl.innerText = "Listening...";
+            transcriptEl.classList.remove('final');
+            responseBox.style.display = 'none';
+            dashboardContainer.style.display = 'none';
+        };
+
+        recognition.onresult = (event) => {
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+
+            if (finalTranscript) {
+                transcriptEl.innerText = finalTranscript;
+                transcriptEl.classList.add('final');
+                sendVoiceCommand(finalTranscript);
+            } else {
+                transcriptEl.innerText = interimTranscript;
+            }
+        };
+
+        recognition.onend = () => {
+            stopAnimations();
+        };
+        
+        recognition.onerror = (event) => {
+            stopAnimations();
+            transcriptEl.innerText = "Error: " + event.error;
+        };
+    }
+
+    function toggleRecording() {
+        if (!recognition) return;
+        if (isRecording) {
+            recognition.stop();
+        } else {
+            recognition.start();
+        }
+    }
+
+    function stopAnimations() {
+        isRecording = false;
+        micBtn.classList.remove('listening');
+        rings.forEach(r => r.classList.remove('active'));
+    }
+
+    function renderAnalysis(analysis) {
+        dashboardContainer.style.display = 'block';
+        
+        // Helper for score colors
+        const getColorClass = (score) => score > 70 ? 'circle-high' : (score > 40 ? 'circle-med' : 'circle-low');
+
+        // Update Scores
+        ['market_demand', 'uniqueness', 'revenue_potential', 'risk'].forEach(key => {
+            const val = analysis[key + '_score'] || analysis[key] || 0;
+            const displayKey = key.split('_')[0];
+            const circle = document.getElementById('score-' + displayKey);
+            const text = document.getElementById('val-' + displayKey);
+            
+            if (circle && text) {
+                text.innerText = val;
+                circle.className = 'score-circle ' + getColorClass(val);
+                circle.style.setProperty('--percentage', val + '%');
+            }
+        });
+
+        // Update SWOT
+        const swotCont = document.getElementById('swot-container');
+        const swot = analysis.swot_analysis || {};
+        swotCont.innerHTML = `
+            <div class="swot-box swot-s"><h5><i class="fa-solid fa-bolt"></i> Strengths</h5><ul>${(swot.strengths || []).map(s => `<li>${s}</li>`).join('')}</ul></div>
+            <div class="swot-box swot-w"><h5><i class="fa-solid fa-ghost"></i> Weaknesses</h5><ul>${(swot.weaknesses || []).map(w => `<li>${w}</li>`).join('')}</ul></div>
+            <div class="swot-box swot-o"><h5><i class="fa-solid fa-lightbulb"></i> Opportunities</h5><ul>${(swot.opportunities || []).map(o => `<li>${o}</li>`).join('')}</ul></div>
+            <div class="swot-box swot-t"><h5><i class="fa-solid fa-shield"></i> Threats</h5><ul>${(swot.threats || []).map(t => `<li>${t}</li>`).join('')}</ul></div>
+        `;
+
+        // Update Roadmap
+        const roadmapList = document.getElementById('roadmap-list');
+        roadmapList.innerHTML = (analysis.implementation_roadmap || []).map(step => `
+            <li style="margin-bottom: 0.5rem; border-left: 2px solid var(--accent-cyan); padding-left: 0.75rem;">${step}</li>
+        `).join('');
+
+        // Verdict
+        document.getElementById('verdict-text').innerText = analysis.final_verdict || "Proceed with caution.";
+
+        // Engine Badge
+        const engineInfo = document.getElementById('engine-info');
+        const engine = analysis.source_engine || 'unknown';
+        engineInfo.innerHTML = `<div class="engine-badge badge-${engine === 'gemini' ? 'ai' : 'heuristic'}"><i class="fa-solid fa-microchip"></i> Engine: ${engine.toUpperCase()}</div>`;
+
+        // NEW: Populate hidden form for full report navigation
+        if (hiddenPayloadInput) {
+            hiddenPayloadInput.value = JSON.stringify(analysis);
+        }
+    }
+
+    function renderMarkdown(text) {
+        if (!text) return '';
+        
+        // Protect HTML
+        let html = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        
+        // Headers
+        html = html.replace(/^####\s+(.*$)/gim, '<h5 style="margin-top: 1rem; margin-bottom: 0.5rem; color: var(--accent-cyan);">$1</h5>');
+        html = html.replace(/^###\s+(.*$)/gim, '<h4 style="margin-top: 1rem; margin-bottom: 0.5rem; color: var(--accent-cyan);">$1</h4>');
+        html = html.replace(/^##\s+(.*$)/gim, '<h3 style="margin-top: 1rem; margin-bottom: 0.5rem; color: var(--text-primary);">$1</h3>');
+        html = html.replace(/^#\s+(.*$)/gim, '<h2 style="margin-top: 1rem; margin-bottom: 0.5rem; color: var(--text-primary);">$1</h2>');
+
+        // Bold & Italic
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        
+        // Strikethrough
+        html = html.replace(/~~(.*?)~~/g, '<del>$1</del>');
+
+        // Bullet Lists
+        html = html.replace(/^\s*[\-\*]\s+(.*)$/gim, '<div style="margin-left: 1.5rem; display: list-item; list-style-type: disc;">$1</div>');
+        
+        // Numbered Lists
+        html = html.replace(/^\s*\d+\.\s+(.*)$/gim, '<div style="margin-left: 1.5rem; display: list-item; list-style-type: decimal;">$1</div>');
+
+        // Tables Fallback
+        html = html.replace(/^\|(.*)\|/gim, function(match, inner) {
+            if (inner.replace(/[\s\-|:]/g, '').length === 0) return ''; 
+            let cols = inner.split('|').map(s => s.trim());
+            return '<div style="display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.5rem 0;">' + 
+                   cols.map(c => '<div style="flex: 1; min-width: 0; word-break: break-word; padding-right: 0.5rem;">' + c + '</div>').join('') + 
+                   '</div>';
+        });
+
+        // Newlines
+        html = html.replace(/\n\s*\n/g, '<br><br>');
+        html = html.replace(/([^\n])\n([^\n])/g, '$1<br>$2');
+
+        return html;
+    }
+
+    async function sendVoiceCommand(commandText) {
+        window.UI.showLoading("Transcribing Strategy...");
+        
+        try {
+            const response = await fetch("{% url 'voice_assistant:voice_interface' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.UI.getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    command: commandText,
+                    session_id: sessionStorage.getItem('voiceSessionId') || ''
+                })
+            });
+
+            const data = await response.json();
+            console.log('[Voice Agent] Response:', data);
+            window.UI.hideLoading();
+
+            // Store returned session_id for continuity
+            if (data.session_id) {
+                sessionStorage.setItem('voiceSessionId', data.session_id);
+            }
+
+            if (data.success) {
+                // Always show the text response card
+                responseBox.style.display = 'block';
+                const replyText = data.response || data.reply || 'Processing complete.';
+                responseContent.innerHTML = renderMarkdown(replyText);
+
+                // Show engine badge
+                const engineInfo = document.getElementById('engine-info');
+                const engine = (data.source_engine || data.analysis?.source_engine || 'gemini').toUpperCase();
+                engineInfo.innerHTML = `<div class="engine-badge badge-${engine === 'GEMINI' ? 'ai' : 'heuristic'}"><i class="fa-solid fa-microchip"></i> Engine: ${engine}</div>`;
+
+                // If structured analysis exists, render the dashboard
+                if (data.is_analysis && data.analysis && typeof data.analysis === 'object') {
+                    try {
+                        renderAnalysis(data.analysis);
+                    } catch (renderErr) {
+                        console.error('[Voice Agent] Dashboard render error:', renderErr);
+                        // Don't crash — text response is already visible
+                    }
+                } else {
+                    dashboardContainer.style.display = 'none';
+                }
+            } else {
+                responseBox.style.display = 'block';
+                const errMsg = (data.errors && data.errors.length > 0) ? data.errors[0] : (data.error || 'Unknown error');
+                responseContent.innerHTML = `<span style="color: var(--score-low)">⚠️ ${errMsg}</span>`;
+            }
+
+        } catch (error) {
+            console.error('[Voice Agent] Network Error:', error);
+            window.UI.hideLoading();
+            responseBox.style.display = 'block';
+            responseContent.innerHTML = `<span style="color: var(--score-low)">Network Error. Cannot reach voice backend. Please check your connection.</span>`;
+        }
+    }
 </script>
 {% endblock %}

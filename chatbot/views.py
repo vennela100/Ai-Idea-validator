@@ -57,36 +57,38 @@ def send_message(request):
             message_type='text'
         )
         
-        # Generate AI response
-        ai_response = generate_ai_response(message_text)
+        # Generate AI response using the AIChatbot class
+        from .ai_chatbot import ai_chatbot
+        try:
+            chatbot_response = ai_chatbot.process_message(message_text, session_id=str(conversation.id))
+            ai_response_text = chatbot_response.get('response', '')
+        except Exception as ai_err:
+            logger.error(f"AI processing error: {ai_err}", exc_info=True)
+            ai_response_text = "I'm having difficulty processing that right now. Could you try rephrasing your question?"
+        
+        # Ensure we always have a non-empty response
+        if not ai_response_text or not ai_response_text.strip():
+            ai_response_text = "I received your message but couldn't generate a response. Please try again."
         
         # Save AI message
         ai_message = Message.objects.create(
             conversation=conversation,
             sender='ai',
-            message_text=ai_response,
+            message_text=ai_response_text,
             message_type='text'
         )
         
         # Update conversation timestamp
         conversation.save()
         
+        # Standardized response contract — frontend reads 'response' directly
         return JsonResponse({
             'success': True,
-            'user_message': {
-                'id': user_message.id,
-                'message': user_message.message_text,
-                'sender': 'user',
-                'timestamp': user_message.created_at.isoformat()
-            },
-            'ai_response': {
-                'id': ai_message.id,
-                'message': ai_message.message_text,
-                'sender': 'ai',
-                'timestamp': ai_message.created_at.isoformat()
-            },
+            'mode': 'strategic_chat',
+            'response': ai_response_text,
             'conversation_id': conversation.id,
-            'conversation_title': conversation.title
+            'conversation_title': conversation.title,
+            'errors': []
         })
         
     except json.JSONDecodeError:
@@ -95,10 +97,12 @@ def send_message(request):
             'error': 'Invalid JSON format'
         }, status=400)
     except Exception as e:
-        logger.error(f"Send message error: {e}")
+        logger.error(f"Send message error: {e}", exc_info=True)
         return JsonResponse({
             'success': False,
-            'error': 'An error occurred. Please try again.'
+            'mode': 'error',
+            'response': 'Something went wrong on our end. Please try again in a moment.',
+            'errors': [str(e)]
         }, status=500)
 
 
@@ -182,156 +186,3 @@ def get_conversation(request, conversation_id):
         }, status=500)
 
 
-def generate_ai_response(message):
-    """Generate AI response for business advisor chatbot"""
-    message_lower = message.lower()
-    
-    # Market demand questions
-    if any(keyword in message_lower for keyword in ['market demand', 'market size', 'demand', 'market potential']):
-        return """**Market Demand Analysis**
-
-Based on current market trends, I can help you analyze market demand. To provide accurate insights, I'll need more specific information about your business idea.
-
-**Key Factors I Consider:**
-- Target market size and growth rate
-- Current market trends and projections
-- Customer pain points and needs
-- Competitive landscape
-- Economic factors affecting demand
-
-Could you please describe your specific business idea so I can provide a detailed market demand analysis?"""
-    
-    # Competitor questions
-    elif any(keyword in message_lower for keyword in ['competitors', 'competition', 'competitive', 'rivals']):
-        return """**Competitor Analysis**
-
-I can help you identify and analyze competitors in your industry. Let me provide a framework for competitor analysis:
-
-**Types of Competitors to Consider:**
-- **Direct Competitors**: Companies offering similar products/services
-- **Indirect Competitors**: Companies solving the same problem differently
-- **Potential Competitors**: Companies that could enter your market
-- **Substitute Products**: Alternative solutions customers might choose
-
-**Analysis Framework:**
-1. Market positioning
-2. Pricing strategies
-3. Product features
-4. Market share
-5. Strengths and weaknesses
-
-What specific industry or business idea are you analyzing? This will help me provide more targeted competitor insights."""
-    
-    # Risk questions
-    elif any(keyword in message_lower for keyword in ['risk', 'risks', 'danger', 'challenges', 'obstacles']):
-        return """**Risk Assessment Framework**
-
-I can help you identify and assess risks for your business idea. Here's a comprehensive risk analysis approach:
-
-**Risk Categories:**
-1. **Market Risks**
-   - Market acceptance
-   - Competition intensity
-   - Economic downturns
-   - Regulatory changes
-
-2. **Operational Risks**
-   - Supply chain issues
-   - Technology failures
-   - Staffing challenges
-   - Quality control
-
-3. **Financial Risks**
-   - Cash flow problems
-   - Funding requirements
-   - Revenue uncertainty
-   - Cost overruns
-
-4. **Strategic Risks**
-   - Business model viability
-   - Technology obsolescence
-   - Market timing
-   - Scalability issues
-
-What specific type of business are you planning? This will help me provide more targeted risk analysis."""
-    
-    # Feasibility questions
-    elif any(keyword in message_lower for keyword in ['feasibility', 'viable', 'possible', 'achievable']):
-        return """**Feasibility Assessment**
-
-I can help you evaluate the feasibility of your business idea. Here's what I consider:
-
-**Feasibility Factors:**
-
-**1. Technical Feasibility**
-- Required technology availability
-- Development complexity
-- Technical expertise needed
-- Infrastructure requirements
-
-**2. Financial Feasibility**
-- Startup costs and funding needs
-- Revenue potential
-- Break-even analysis
-- Profit margins
-
-**3. Market Feasibility**
-- Target market size
-- Customer willingness to pay
-- Market entry barriers
-- Growth potential
-
-**4. Operational Feasibility**
-- Resource requirements
-- Team capabilities
-- Process complexity
-- Scalability potential
-
-To provide a detailed feasibility assessment, please describe your business idea and I'll evaluate it against these factors."""
-    
-    # General business advice
-    elif any(keyword in message_lower for keyword in ['business idea', 'startup', 'entrepreneur', 'help']):
-        return """**AI Startup Assistant**
-
-Hello! I'm your AI business advisor, here to help you with:
-
-**🎯 Core Services:**
-- Business idea validation
-- Market demand analysis
-- Competitor research
-- Risk assessment
-- Feasibility evaluation
-- Strategic recommendations
-
-**💡 How I Can Help:**
-- Analyze market trends and opportunities
-- Identify potential competitors
-- Assess business model viability
-- Provide improvement suggestions
-- Calculate feasibility scores
-- Offer strategic guidance
-
-**🚀 Getting Started:**
-Just ask me questions like:
-- "What's the market demand for [your idea]?"
-- "Who are the competitors in [your industry]?"
-- "What risks should I consider for [your business]?"
-- "Is [your idea] feasible?"
-
-What business idea would you like to explore today?"""
-    
-    # Default response
-    else:
-        return """**AI Business Advisor**
-
-I'm here to help with your business idea! I can provide insights on:
-
-📊 **Market Analysis** - Demand, trends, and opportunities
-🏢 **Competitor Research** - Key players and market positioning
-⚠️ **Risk Assessment** - Potential challenges and mitigation strategies
-✅ **Feasibility Evaluation** - Technical, financial, and operational viability
-💡 **Strategic Advice** - Growth strategies and improvement suggestions
-
-Please ask me a specific question about your business idea, or describe what you'd like to explore, and I'll provide detailed analysis and recommendations.
-
-For example: "What's the market demand for an AI fitness app?" or "What competitors exist in the online tutoring space?"""

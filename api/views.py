@@ -3,11 +3,14 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
-from django.db import transaction
-from django.http import Http404
-from django.db import models
+from django.db import transaction, models
 from .models import BusinessIdea, MarketAnalysis
-from .serializers import BusinessIdeaSerializer, MarketAnalysisSerializer, AnalysisRequestSerializer, AnalysisResponseSerializer, QuickAnalysisRequestSerializer, QuickAnalysisResponseSerializer
+from .serializers import (
+    BusinessIdeaSerializer, MarketAnalysisSerializer,
+    AnalysisRequestSerializer, AnalysisResponseSerializer,
+    QuickAnalysisRequestSerializer, QuickAnalysisResponseSerializer,
+)
+from analyzer.services.orchestrator import AIOrchestrator
 
 
 class BusinessIdeaViewSet(viewsets.ModelViewSet):
@@ -30,9 +33,7 @@ class BusinessIdeaViewSet(viewsets.ModelViewSet):
         """Override destroy to handle cascading deletes"""
         instance = self.get_object()
         with transaction.atomic():
-            # Delete idea
             instance.delete()
-        
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -44,78 +45,61 @@ class MarketAnalysisViewSet(viewsets.ModelViewSet):
 
 
 class AnalyzeIdeaAPIView(APIView):
-    """API endpoint for analyzing business ideas"""
+    """
+    API endpoint for full business idea analysis.
+    Routes through the shared AIOrchestrator for consistent behaviour
+    across Web, Voice, Chat, and API surfaces.
+    """
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
         """Analyze a business idea and return comprehensive results"""
         try:
             data = request.data
-            
+
             # Validate required fields
             required_fields = ['title', 'description', 'industry']
             for field in required_fields:
                 if not data.get(field):
                     return Response(
-                        {'error': f'{field} is required'},
+                        {'success': False, 'error': f'{field} is required'},
                         status=status.HTTP_400_BAD_REQUEST
                     )
-            
-            # Prepare business idea data
-            business_idea_data = {
-                'title': data.get('title', ''),
-                'description': data.get('description', ''),
-                'industry': data.get('industry', ''),
-                'target_market': data.get('target_market', ''),
-                'revenue_model': data.get('revenue_model', '')
-            }
-            
-            # Perform simple analysis
-            analysis_result = {
-                'market_demand_score': 75,
-                'competition_level': 'Medium',
-                'risk_score': 50,
-                'feasibility_score': 80,
-                'success_probability': 70,
-                'swot_analysis': {
-                    'strengths': 'Innovative concept with market potential',
-                    'weaknesses': 'Early stage requiring validation and resources',
-                    'opportunities': 'Market growth and digital expansion opportunities',
-                    'threats': 'Competitive landscape and regulatory challenges'
-                },
-                'target_customers': {
-                    'primary_segment': 'B2C',
-                    'demographics': 'Adults 25-65',
-                    'psychographics': 'General consumers',
-                    'geography': 'Regional to national'
-                },
-                'business_models': [
-                    {
-                        'model': 'Subscription',
-                        'description': 'Recurring revenue through periodic subscription fees',
-                        'viability': 85
-                    }
-                ],
-                'improvement_suggestions': [
-                    {
-                        'type': 'Market',
-                        'suggestion': 'Conduct market research to validate demand and identify target customer segments',
-                        'priority': 'High',
-                        'difficulty': 'Medium',
-                        'impact': 'High'
-                    }
-                ],
-                'industry_detected': 'General',
-                'method': 'keyword-based analysis',
-                'confidence_score': 60
-            }
-            
+
+            # Build a rich idea description for the AI
+            idea_parts = [
+                data.get('title', ''),
+                data.get('description', ''),
+                f"Industry: {data.get('industry', '')}",
+            ]
+            if data.get('target_market'):
+                idea_parts.append(f"Target Market: {data['target_market']}")
+            if data.get('revenue_model'):
+                idea_parts.append(f"Revenue Model: {data['revenue_model']}")
+
+            idea_text = ". ".join(p for p in idea_parts if p)
+
+            # --- Route through the AI Orchestrator ---
+            result = AIOrchestrator.process_request(
+                command=idea_text,
+                source='analyzer'   # forces full_analysis intent
+            )
+
+            # Build response
+            analysis = result.get('analysis') or {}
             return Response({
-                'success': True,
-                'analysis': analysis_result,
-                'idea_data': business_idea_data
+                'success': result.get('success', False),
+                'mode': 'full_analysis',
+                'analysis': analysis,
+                'idea_data': {
+                    'title': data.get('title', ''),
+                    'description': data.get('description', ''),
+                    'industry': data.get('industry', ''),
+                    'target_market': data.get('target_market', ''),
+                    'revenue_model': data.get('revenue_model', ''),
+                },
             }, status=status.HTTP_200_OK)
-            
+
         except Exception as e:
             return Response({
                 'success': False,
@@ -124,66 +108,47 @@ class AnalyzeIdeaAPIView(APIView):
 
 
 class QuickAnalysisAPIView(APIView):
-    """API endpoint for quick business idea analysis"""
+    """
+    API endpoint for quick / strategic business idea analysis.
+    Also routes through the AIOrchestrator; the intent router
+    will classify short descriptions appropriately (clarification or analysis).
+    """
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
         """Provide quick analysis for business idea preview"""
         try:
             data = request.data
-            description = data.get('description', '')
-            
-            if not description.strip():
+            description = data.get('description', '').strip()
+
+            if not description:
                 return Response(
-                    {'error': 'Description is required'},
+                    {'success': False, 'error': 'Description is required'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            
-            # Provide quick analysis
-            quick_result = {
-                'market_demand_score': 75,
-                'competition_level': 'Medium',
-                'risk_score': 50,
-                'feasibility_score': 80,
-                'success_probability': 70,
-                'swot_analysis': {
-                    'strengths': 'Innovative concept with market potential',
-                    'weaknesses': 'Early stage requiring validation and resources',
-                    'opportunities': 'Market growth and digital expansion opportunities',
-                    'threats': 'Competitive landscape and regulatory challenges'
-                },
-                'target_customers': {
-                    'primary_segment': 'B2C',
-                    'demographics': 'Adults 25-65',
-                    'psychographics': 'General consumers',
-                    'geography': 'Regional to national'
-                },
-                'business_models': [
-                    {
-                        'model': 'Subscription',
-                        'description': 'Recurring revenue through periodic subscription fees',
-                        'viability': 85
-                    }
-                ],
-                'improvement_suggestions': [
-                    {
-                        'type': 'Market',
-                        'suggestion': 'Conduct market research to validate demand and identify target customer segments',
-                        'priority': 'High',
-                        'difficulty': 'Medium',
-                        'impact': 'High'
-                    }
-                ],
-                'industry_detected': 'General',
-                'method': 'keyword-based analysis',
-                'confidence_score': 60
-            }
-            
+
+            # --- Route through the AI Orchestrator ---
+            # source='web' lets the IntentRouter decide between
+            # full_analysis, strategic_chat, or clarification based on input length/clues.
+            result = AIOrchestrator.process_request(
+                command=description,
+                source='web'
+            )
+
+            # Determine friendly mode label
+            if result.get('is_analysis'):
+                mode = 'full_analysis'
+                analysis = result.get('analysis', {})
+            else:
+                mode = 'strategic_chat' if len(description) > 40 else 'clarification'
+                analysis = {'response': result.get('response', '')}
+
             return Response({
-                'success': True,
-                'analysis': quick_result
+                'success': result.get('success', False),
+                'mode': mode,
+                'analysis': analysis,
             }, status=status.HTTP_200_OK)
-            
+
         except Exception as e:
             return Response({
                 'success': False,
@@ -198,10 +163,10 @@ def idea_statistics(request):
     try:
         total_ideas = BusinessIdea.objects.count()
         user_ideas = 0
-        
+
         if request.user.is_authenticated:
             user_ideas = BusinessIdea.objects.filter(user=request.user).count()
-        
+
         return Response({
             'total_ideas': total_ideas,
             'user_ideas': user_ideas,
@@ -209,7 +174,7 @@ def idea_statistics(request):
             'average_feasibility_score': 80,
             'top_industries': ['General', 'Technology', 'Healthcare', 'Finance']
         })
-        
+
     except Exception as e:
         return Response({
             'error': str(e)
@@ -222,14 +187,14 @@ def user_dashboard(request):
     """Get user-specific dashboard data"""
     try:
         user_ideas = BusinessIdea.objects.filter(user=request.user)
-        
+
         # Recent ideas
         recent_ideas = user_ideas.order_by('-created_at')[:5]
         recent_ideas_data = BusinessIdeaSerializer(recent_ideas, many=True).data
-        
+
         # Statistics
         total_ideas = user_ideas.count()
-        
+
         return Response({
             'recent_ideas': recent_ideas_data,
             'statistics': {
@@ -239,7 +204,7 @@ def user_dashboard(request):
                 'total_suggestions': 10
             }
         })
-        
+
     except Exception as e:
         return Response({
             'error': str(e)

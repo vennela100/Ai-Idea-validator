@@ -1,1341 +1,350 @@
 {% extends 'base.html' %}
-{% load static %}
+
+{% block title %}AI Idea Business Validator | Analysis Results{% endblock %}
 
 {% block extra_css %}
 <style>
-/* Results Dashboard Styles */
-.results-dashboard {
-    background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 50%, #16213e 100%);
-    color: #e8e8f0;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    min-height: 100vh;
-    padding: 2rem 1rem;
-}
-
-/* Dashboard Grid Pattern */
-.results-dashboard::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px), 
-                      linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px);
-    background-size: 50px 50px;
-    z-index: -1;
-    pointer-events: none;
-}
-
-/* Dashboard Header */
-.dashboard-header {
-    text-align: center;
-    margin-bottom: 3rem;
-}
-
-.dashboard-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0.5rem;
-    animation: titleGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes titleGlow {
-    0%, 100% { text-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
-    50% { text-shadow: 0 0 30px rgba(139, 92, 246, 0.8); }
-}
-
-.overall-score-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 3rem;
-}
-
-.score-circle {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    background: conic-gradient(
-        from #10b981 0deg,
-        #f97316 120deg,
-        #ef4444 240deg,
-        #10b981 360deg
-    );
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.3),
-                inset 0 0 20px rgba(255, 255, 255, 0.1);
-    animation: rotateScore 3s linear infinite;
-}
-
-@keyframes rotateScore {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.score-value {
-    font-size: 3rem;
-    font-weight: 700;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    z-index: 1;
-}
-
-.score-label {
-    font-size: 1rem;
-    color: #9ca3af;
-    margin-top: 1rem;
-}
-
-/* Main Dashboard Grid */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2rem;
-    margin-bottom: 3rem;
-}
-
-/* Dashboard Cards */
-.dashboard-card {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.05));
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 2rem;
-    transition: all 0.4s ease;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-.dashboard-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.1), transparent);
-    transform: rotate(45deg);
-    transition: all 0.6s;
-    opacity: 0;
-}
-
-.dashboard-card:hover::before {
-    animation: cardShimmer 0.6s ease-in-out;
-}
-
-@keyframes cardShimmer {
-    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
-    50% { opacity: 1; }
-    100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
-}
-
-.dashboard-card:hover {
-    transform: translateY(-10px) rotateX(2deg) rotateY(2deg);
-    box-shadow: 0 25px 50px rgba(59, 130, 246, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    border-color: rgba(59, 130, 246, 0.3);
-}
-
-.card-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1.5rem;
-}
-
-.card-icon {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 1rem;
-    color: white;
-    font-size: 1.5rem;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-}
-
-.card-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #e8e8f0;
-}
-
-/* Market Demand Score */
-.market-demand {
-    grid-column: span 2;
-}
-
-.bar-chart {
-    height: 200px;
-    position: relative;
-}
-
-.bar-container {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-around;
-    height: 100%;
-    padding: 0 1rem;
-}
-
-.bar {
-    width: 60px;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    border-radius: 8px 8px 0 0;
-    position: relative;
-    animation: growBar 1s ease-out;
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-}
-
-@keyframes growBar {
-    from { height: 0; }
-    to { height: var(--bar-height); }
-}
-
-.bar-label {
-    position: absolute;
-    bottom: -25px;
-    font-size: 0.75rem;
-    color: #9ca3af;
-    text-align: center;
-    width: 60px;
-}
-
-/* Competition Level */
-.competition-level {
-    position: relative;
-}
-
-.circular-chart {
-    width: 200px;
-    height: 200px;
-    margin: 0 auto;
-}
-
-.pie-chart {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: conic-gradient(
-        #10b981 0deg 60deg,
-        #f97316 60deg 120deg,
-        #ef4444 60deg 240deg,
-        #10b981 60deg 360deg
-    );
-    position: relative;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3),
-                inset 0 0 15px rgba(255, 255, 255, 0.1);
-    animation: rotateChart 4s linear infinite;
-}
-
-@keyframes rotateChart {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.chart-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 120px;
-    height: 120px;
-    background: rgba(15, 15, 30, 0.9);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #e8e8f0;
-    font-weight: 600;
-    font-size: 1.1rem;
-}
-
-.competition-label {
-    text-align: center;
-    margin-top: 1.5rem;
-    font-size: 1.1rem;
-    color: #9ca3af;
-}
-
-/* Risk Level */
-.risk-level {
-    grid-column: span 2;
-}
-
-.risk-slider {
-    width: 100%;
-    height: 20px;
-    background: linear-gradient(90deg, #10b981 0%, #f97316 50%, #ef4444 100%);
-    border-radius: 10px;
-    position: relative;
-    margin: 2rem 0;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.risk-indicator {
-    position: absolute;
-    top: -6px;
-    width: 32px;
-    height: 32px;
-    background: white;
-    border: 4px solid #f97316;
-    border-radius: 50%;
-    transform: translateX(-50%);
-    left: var(--risk-position);
-    transition: left 1s ease-out;
-    box-shadow: 0 0 15px rgba(249, 115, 22, 0.6);
-    animation: pulseRisk 2s ease-in-out infinite;
-}
-
-@keyframes pulseRisk {
-    0%, 100% { transform: translateX(-50%) scale(1); }
-    50% { transform: translateX(-50%) scale(1.1); }
-}
-
-.risk-labels {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
-    font-size: 0.9rem;
-    color: #9ca3af;
-}
-
-/* Feasibility Score */
-.feasibility-score {
-    grid-column: span 2;
-}
-
-.donut-chart {
-    width: 200px;
-    height: 200px;
-    margin: 0 auto 2rem;
-    position: relative;
-}
-
-.donut-outer {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: conic-gradient(
-        #10b981 0deg 270deg,
-        rgba(31, 41, 55, 0.8) 270deg 360deg
-    );
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.4),
-                inset 0 0 15px rgba(255, 255, 255, 0.1);
-    animation: rotateDonut 3s linear infinite;
-}
-
-@keyframes rotateDonut {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.donut-inner {
-    width: 100px;
-    height: 100px;
-    background: rgba(15, 15, 30, 0.9);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #e8e8f0;
-    font-weight: 700;
-    font-size: 2rem;
-    position: relative;
-}
-
-.donut-score {
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(135deg, #10b981, #059669);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: 700;
-    color: white;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.5);
-}
-
-/* Success Probability */
-.success-probability {
-    grid-column: span 2;
-}
-
-.progress-circle {
-    width: 200px;
-    height: 200px;
-    margin: 0 auto 2rem;
-    position: relative;
-}
-
-.progress-ring {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-}
-
-.progress-ring-circle {
-    stroke: #3b82f6;
-    stroke-width: 8;
-    fill: transparent;
-    stroke-dasharray: 565.48;
-    stroke-dashoffset: 141.37;
-    stroke-linecap: round;
-    filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
-    animation: progressAnimation 2s ease-out;
-}
-
-@keyframes progressAnimation {
-    to {
-        stroke-dashoffset: 0;
+    .results-header {
+        text-align: center;
+        margin-bottom: 3rem;
     }
-}
 
-.progress-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-}
-
-.progress-value {
-    font-size: 2.5rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.progress-label {
-    font-size: 0.9rem;
-    color: #9ca3af;
-    margin-top: 0.5rem;
-}
-
-/* SWOT Analysis */
-.swot-analysis {
-    grid-column: span 2;
-}
-
-.swot-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-}
-
-.swot-item {
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
-}
-
-.swot-item:hover {
-    background: rgba(59, 130, 246, 0.2);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-}
-
-.swot-title {
-    font-weight: 600;
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.swot-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-}
-
-.strength { color: #10b981; background: rgba(16, 185, 129, 0.1); }
-.weakness { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
-.opportunity { color: #06b6d4; background: rgba(6, 182, 212, 0.1); }
-.threat { color: #f97316; background: rgba(249, 115, 22, 0.1); }
-
-.swot-content {
-    color: #e8e8f0;
-    line-height: 1.6;
-}
-
-.swot-list {
-    list-style: none;
-    padding: 0;
-    margin: 0.5rem 0 0 0;
-}
-
-.swot-list li {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    color: #9ca3af;
-    font-size: 0.9rem;
-}
-
-/* Target Customers */
-.target-customers {
-    grid-column: span 2;
-}
-
-.customer-segments {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-}
-
-.customer-segment {
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
-}
-
-.customer-segment:hover {
-    background: rgba(59, 130, 246, 0.2);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
-}
-
-.segment-title {
-    font-weight: 600;
-    color: #3b82f6;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.segment-icon {
-    width: 20px;
-    height: 20px;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 0.8rem;
-}
-
-.segment-description {
-    color: #e8e8f0;
-    font-size: 0.9rem;
-    line-height: 1.5;
-}
-
-/* Business Model Suggestions */
-.business-suggestions {
-    grid-column: span 2;
-}
-
-.suggestions-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.suggestion-item {
-    background: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.suggestion-item::before {
-    content: '';
-    position: absolute;
-    left: -100%;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.2), transparent);
-    transition: left 0.5s;
-}
-
-.suggestion-item:hover::before {
-    left: 100%;
-}
-
-.suggestion-item:hover {
-    background: rgba(59, 130, 246, 0.2);
-    transform: translateX(5px);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-}
-
-.suggestion-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.suggestion-title {
-    font-weight: 600;
-    color: #3b82f6;
-    font-size: 1.1rem;
-}
-
-.suggestion-priority {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-.priority-high { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
-.priority-medium { background: rgba(249, 115, 22, 0.2); color: #f97316; }
-.priority-low { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-
-.suggestion-content {
-    color: #e8e8f0;
-    line-height: 1.6;
-}
-
-/* AI Improvement Suggestions */
-.ai-suggestions {
-    grid-column: span 2;
-}
-
-.ai-suggestion-card {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.05));
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.ai-suggestion-card::after {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4, #8b5cf6);
-    border-radius: 16px;
-    opacity: 0.1;
-    z-index: -1;
-}
-
-.ai-suggestion-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.ai-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.2rem;
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-    animation: aiPulse 2s ease-in-out infinite;
-}
-
-@keyframes aiPulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
-    50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(139, 92, 246, 0.8); }
-}
-
-.ai-suggestion-title {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #e8e8f0;
-}
-
-.ai-suggestion-content {
-    color: #e8e8f0;
-    line-height: 1.6;
-}
-
-.ai-tips {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: rgba(59, 130, 246, 0.05);
-    border-radius: 8px;
-    border-left: 3px solid #3b82f6;
-}
-
-.ai-tip {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
-    color: #9ca3af;
-    font-size: 0.9rem;
-}
-
-.ai-tip-icon {
-    width: 20px;
-    height: 20px;
-    background: #3b82f6;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 0.7rem;
-    flex-shrink: 0;
-    margin-top: 2px;
-}
-
-/* Action Buttons */
-.action-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 3rem;
-    flex-wrap: wrap;
-}
-
-.action-btn {
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-}
-
-.action-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.5s;
-}
-
-.action-btn:hover::before {
-    left: 100%;
-}
-
-.action-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.6);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .dashboard-grid {
-        grid-template-columns: 1fr;
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
         gap: 1.5rem;
+        margin-bottom: 3rem;
     }
-    
-    .dashboard-card {
-        padding: 1.5rem;
+
+    /* Column Utilities */
+    .col-12 { grid-column: span 12; }
+    .col-8 { grid-column: span 8; }
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    .col-3 { grid-column: span 3; }
+
+    @media (max-width: 1024px) {
+        .col-4, .col-3 { grid-column: span 6; }
+        .col-8 { grid-column: span 12; }
     }
-    
-    .swot-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
+    @media (max-width: 768px) {
+        .col-6, .col-4, .col-3 { grid-column: span 12; }
     }
-    
-    .customer-segments {
-        grid-template-columns: 1fr;
-    }
-    
-    .action-buttons {
+
+    /* Score Ring Component */
+    .score-card {
+        text-align: center;
+        display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
     }
     
     .score-circle {
-        width: 150px;
-        height: 150px;
+        position: relative;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        background: conic-gradient(var(--circle-color) var(--percentage), transparent 0);
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+    .score-circle::before {
+        content: "";
+        position: absolute;
+        inset: 8px;
+        border-radius: 50%;
+        background: var(--bg-deep-space);
+    }
+    .score-value {
+        position: relative;
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: var(--text-primary);
+    }
+
+    /* SWOT Grid */
+    .swot-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    .swot-box {
+        padding: 1.25rem;
+        border-radius: var(--radius-sm);
+        background: rgba(0,0,0,0.3);
+        border-left: 4px solid transparent;
+    }
+    .swot-s { border-color: var(--score-high); }
+    .swot-w { border-color: var(--score-low); }
+    .swot-o { border-color: var(--accent-cyan); }
+    .swot-t { border-color: var(--score-med); }
+
+    .swot-box h4 {
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .swot-box ul {
+        list-style: none;
+    }
+    .swot-box li {
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .swot-box li::before {
+        content: "•";
+        color: var(--glass-border);
+    }
+
+    /* List Cards */
+    .list-card ul {
+        list-style: none;
+        margin-top: 1rem;
+    }
+    .list-card li {
+        padding: 1rem;
+        background: rgba(0,0,0,0.2);
+        margin-bottom: 0.5rem;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--glass-border);
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--accent-cyan);
+    }
+
+    /* Floating engine badge */
+    .engine-badge {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+    }
+
+    .verdict-box {
+        background: linear-gradient(135deg, rgba(138,43,226,0.1), rgba(0,240,255,0.05));
+        border: 1px solid var(--accent-purple);
+        text-align: center;
+        padding: 3rem;
     }
     
-    .donut-chart, .circular-chart, .progress-circle {
-        width: 150px;
-        height: 150px;
+    .verdict-box h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
     }
-}
-
-/* Loading Animation */
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(15, 15, 30, 0.95);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.loading-spinner {
-    width: 60px;
-    height: 60px;
-    border: 3px solid rgba(59, 130, 246, 0.2);
-    border-top: 3px solid #3b82f6;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-}
-
-.loading-text {
-    color: #e8e8f0;
-    font-size: 1.1rem;
-    font-weight: 500;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Fallback Chart Styles */
-.fallback-chart {
-    background: rgba(59, 130, 246, 0.1);
-    border: 2px solid rgba(59, 130, 246, 0.3);
-    border-radius: 15px;
-    padding: 2rem;
-    text-align: center;
-    min-height: 300px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.chart-placeholder {
-    color: #e8e8f0;
-}
-
-.placeholder-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.7;
-}
-
-.chart-placeholder h4 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin: 0 0 0.5rem 0;
-    color: #3b82f6;
-}
-
-.chart-placeholder p {
-    font-size: 0.9rem;
-    color: #9ca3af;
-    margin: 0 0 1.5rem 0;
-}
-
-.chart-data {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-    margin-top: 1rem;
-}
-
-.data-item {
-    background: rgba(139, 92, 246, 0.1);
-    border: 1px solid rgba(139, 92, 246, 0.3);
-    border-radius: 8px;
-    padding: 0.8rem 1.2rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #e8e8f0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.data-item:hover {
-    background: rgba(139, 92, 246, 0.2);
-    border-color: rgba(139, 92, 246, 0.5);
-    transform: translateY(-2px);
-    transition: all 0.3s ease;
-}
-
-.loading-text {
-    margin-top: 1rem;
-    color: #e8e8f0;
-    font-size: 1.1rem;
-}
+    
+    /* Utility Classes for Template Logic */
+    .circle-high { --circle-color: var(--score-high); }
+    .circle-med { --circle-color: var(--score-med); }
+    .circle-low { --circle-color: var(--score-low); }
+    
+    .text-high { color: var(--score-high) !important; }
+    .text-med { color: var(--score-med) !important; }
+    .text-low { color: var(--score-low) !important; }
+    
+    .bg-high { background-color: var(--score-high) !important; }
+    .bg-med { background-color: var(--score-med) !important; }
+    .bg-low { background-color: var(--score-low) !important; }
+    
+    .w-25 { width: 25%; }
+    .w-50 { width: 50%; }
+    .w-75 { width: 75%; }
+    .w-100 { width: 100%; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="results-dashboard">
-    <!-- Dashboard Header -->
-    <div class="dashboard-header">
-        <h1 class="dashboard-title">Analysis Results</h1>
+<div class="container relative">
+    
+    {% if not analysis %}
+    <div class="glass-panel text-center" style="margin-top: 5rem;">
+        <h2><i class="fa-solid fa-triangle-exclamation text-gradient"></i> No Analysis Data Found</h2>
+        <p class="text-secondary" style="margin: 1rem 0 2rem;">It looks like you navigated here directly or the AI session expired.</p>
+        <a href="{% url 'analyzer:home' %}" class="btn-primary">Return Home</a>
+    </div>
+    {% else %}
+    
+    <div class="engine-badge badge {% if analysis.source_engine == 'gemini' %}badge-ai{% else %}badge-heuristic{% endif %}">
+        <i class="fa-solid fa-microchip"></i> Engine: {{ analysis.source_engine|upper }}
     </div>
 
-    <!-- Overall Score -->
-    <div class="overall-score-container">
-        <div class="score-circle">
-            <div class="score-value">{{ analysis.overall_score|default:75 }}</div>
-        </div>
-        <div class="score-label">Overall Success Score</div>
+    <div class="results-header">
+        <h1 class="text-gradient">AI Validation Report</h1>
+        <p class="text-secondary" style="max-width: 600px; margin: 1rem auto;">
+            {{ analysis.idea_summary }}
+        </p>
     </div>
 
-    <!-- Main Dashboard Grid -->
-    <div class="dashboard-grid">
-        <!-- Market Demand Score -->
-        <div class="dashboard-card market-demand">
-            <div class="card-header">
-                <div class="card-icon">📈</div>
-                <h3 class="card-title">Market Demand Score</h3>
+    <div class="results-grid">
+        <!-- SCORE RINGS (Overview) -->
+        <div class="col-3 glass-panel score-card">
+            <div class="score-circle dynamic-percentage circle-{% if analysis.market_demand_score > 70 %}high{% elif analysis.market_demand_score > 40 %}med{% else %}low{% endif %}" data-percent="{{ analysis.market_demand_score }}%">
+                <span class="score-value">{{ analysis.market_demand_score }}</span>
             </div>
-            <div class="bar-chart">
-                <div class="bar-container">
-                    <div class="bar" style="--bar-height: 75%">
-                        <div class="bar-label">Q1</div>
-                    </div>
-                    <div class="bar" style="--bar-height: 82%">
-                        <div class="bar-label">Q2</div>
-                    </div>
-                    <div class="bar" style="--bar-height: 87%">
-                        <div class="bar-label">Q3</div>
-                    </div>
-                    <div class="bar" style="--bar-height: 92%">
-                        <div class="bar-label">Q4</div>
-                    </div>
+            <h4>Market Demand</h4>
+            <span class="text-dim text-sm">Target validation</span>
+        </div>
+
+        <div class="col-3 glass-panel score-card">
+            <div class="score-circle dynamic-percentage circle-{% if analysis.uniqueness_score > 70 %}high{% elif analysis.uniqueness_score > 40 %}med{% else %}low{% endif %}" data-percent="{{ analysis.uniqueness_score }}%">
+                <span class="score-value">{{ analysis.uniqueness_score }}</span>
+            </div>
+            <h4>Uniqueness Moat</h4>
+            <span class="text-dim text-sm">Defensibility</span>
+        </div>
+
+        <div class="col-3 glass-panel score-card">
+            <div class="score-circle dynamic-percentage circle-{% if analysis.feasibility_score > 70 %}high{% elif analysis.feasibility_score > 40 %}med{% else %}low{% endif %}" data-percent="{{ analysis.feasibility_score }}%">
+                <span class="score-value">{{ analysis.feasibility_score }}</span>
+            </div>
+            <h4>Feasibility</h4>
+            <span class="text-dim text-sm">MVP Execution</span>
+        </div>
+
+        <div class="col-3 glass-panel score-card">
+            <div class="score-circle dynamic-percentage circle-{% if analysis.risk_score < 30 %}high{% elif analysis.risk_score < 70 %}med{% else %}low{% endif %}" data-percent="{{ analysis.risk_score }}%">
+                <span class="score-value">{{ analysis.risk_score }}</span>
+            </div>
+            <h4>Risk Score</h4>
+            <span class="text-dim text-sm">Lower is safer</span>
+        </div>
+
+        <!-- CORE TEXT ANALYSIS -->
+        <div class="col-6 glass-panel">
+            <h3 class="section-title"><i class="fa-solid fa-bullseye"></i> The Core Problem</h3>
+            <p style="color: var(--text-secondary); font-size: 1.05rem;">{{ analysis.problem_statement|default:"Not specified by AI engine." }}</p>
+            
+            <h3 class="section-title" style="margin-top: 2rem;"><i class="fa-solid fa-users"></i> Target Audience</h3>
+            <p style="color: var(--text-secondary); font-size: 1.05rem;">{{ analysis.target_audience|default:"Not specified by AI engine." }}</p>
+        </div>
+
+        <div class="col-6 glass-panel">
+            <h3 class="section-title"><i class="fa-solid fa-chess-knight"></i> Market Landscape</h3>
+            
+            <div style="margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Competition Level</span>
+                    <strong class="text-{% if analysis.competition_level == 'Low' %}high{% elif analysis.competition_level == 'Medium' %}med{% else %}low{% endif %}">{{ analysis.competition_level }}</strong>
+                </div>
+                <div style="height: 6px; background: rgba(0,0,0,0.5); border-radius: 99px; overflow: hidden;">
+                    <div class="h-100 w-{% if analysis.competition_level == 'Low' %}25{% elif analysis.competition_level == 'Medium' %}50{% elif analysis.competition_level == 'High' %}75{% else %}100{% endif %} bg-{% if analysis.competition_level == 'Low' %}high{% elif analysis.competition_level == 'Medium' %}med{% else %}low{% endif %}" style="height: 100%;"></div>
+                </div>
+            </div>
+
+            <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Scalability Potential</span>
+                    <strong style="color: var(--accent-cyan);">{{ analysis.scalability_score }}/100</strong>
+                </div>
+                <div style="height: 6px; background: rgba(0,0,0,0.5); border-radius: 99px; overflow: hidden;">
+                    <div class="dynamic-width" style="height: 100%; background: var(--accent-cyan);" data-width="{{ analysis.scalability_score }}%"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Competition Level -->
-        <div class="dashboard-card competition-level">
-            <div class="card-header">
-                <div class="card-icon">⚔️</div>
-                <h3 class="card-title">Competition Level</h3>
-            </div>
-            <div class="circular-chart">
-                <div class="pie-chart">
-                    <div class="chart-center">
-                        <strong>Medium</strong>
-                    </div>
-                </div>
-            </div>
-            <div class="competition-label">
-                <div>🟢 Low: 30%</div>
-                <div>🟡 Medium: 50%</div>
-                <div>🔴 High: 20%</div>
-            </div>
-        </div>
-
-        <!-- Risk Level -->
-        <div class="dashboard-card risk-level">
-            <div class="card-header">
-                <div class="card-icon">⚠️</div>
-                <h3 class="card-title">Risk Level</h3>
-            </div>
-            <div class="risk-slider">
-                <div class="risk-indicator" style="--risk-position: 35%;"></div>
-            </div>
-            <div class="risk-labels">
-                <span style="color: #10b981;">🟢 Low Risk</span>
-                <span style="color: #f97316;">🟡 Medium Risk</span>
-                <span style="color: #ef4444;">🔴 High Risk</span>
-            </div>
-        </div>
-
-        <!-- Feasibility Score -->
-        <div class="dashboard-card feasibility-score">
-            <div class="card-header">
-                <div class="card-icon">✅</div>
-                <h3 class="card-title">Feasibility Score</h3>
-            </div>
-            <div class="donut-chart">
-                <div class="donut-outer">
-                    <div class="donut-inner">
-                        82%
-                    </div>
-                </div>
-                <div class="donut-score">82%</div>
-            </div>
-        </div>
-
-        <!-- Startup Success Probability -->
-        <div class="dashboard-card success-probability">
-            <div class="card-header">
-                <div class="card-icon">🚀</div>
-                <h3 class="card-title">Success Probability</h3>
-            </div>
-            <div class="progress-circle">
-                <svg class="progress-ring" width="200" height="200">
-                    <circle class="progress-ring-circle" cx="100" cy="100" r="90"></circle>
-                </svg>
-            </div>
-            <div class="progress-center">
-                <div class="progress-value">78%</div>
-                <div class="progress-label">High Probability</div>
-            </div>
-        </div>
-
-        <!-- SWOT Analysis -->
-        <div class="dashboard-card swot-analysis">
-            <div class="card-header">
-                <div class="card-icon">🎯</div>
-                <h3 class="card-title">SWOT Analysis</h3>
-            </div>
+        <!-- SWOT GRID -->
+        <div class="col-12 glass-panel">
+            <h3 class="section-title"><i class="fa-solid fa-border-all"></i> SWOT Analysis</h3>
             <div class="swot-grid">
-                <div class="swot-item strength">
-                    <div class="swot-title">
-                        <div class="swot-icon strength">💪</div>
-                        Strengths
-                    </div>
-                    <ul class="swot-list">
-                        <li>AI-powered technology stack</li>
-                        <li>Strong market fit</li>
-                        <li>Scalable business model</li>
+                <div class="swot-box swot-s">
+                    <h4><i class="fa-solid fa-arrow-trend-up" style="color: var(--score-high)"></i> Strengths</h4>
+                    <ul>
+                        {% for item in analysis.swot_analysis.strengths %}<li>{{ item }}</li>{% endfor %}
                     </ul>
                 </div>
-                <div class="swot-item weakness">
-                    <div class="swot-title">
-                        <div class="swot-icon weakness">⚠️</div>
-                        Weaknesses
-                    </div>
-                    <ul class="swot-list">
-                        <li>Limited initial resources</li>
-                        <li>New market entry</li>
-                        <li>Technical complexity</li>
+                <div class="swot-box swot-w">
+                    <h4><i class="fa-solid fa-arrow-trend-down" style="color: var(--score-low)"></i> Weaknesses</h4>
+                    <ul>
+                        {% for item in analysis.swot_analysis.weaknesses %}<li>{{ item }}</li>{% endfor %}
                     </ul>
                 </div>
-                <div class="swot-item opportunity">
-                    <div class="swot-title">
-                        <div class="swot-icon opportunity">🌟</div>
-                        Opportunities
-                    </div>
-                    <ul class="swot-list">
-                        <li>Growing AI market</li>
-                        <li>Untapped niches</li>
-                        <li>Partnership potential</li>
+                <div class="swot-box swot-o">
+                    <h4><i class="fa-solid fa-lightbulb" style="color: var(--accent-cyan)"></i> Opportunities</h4>
+                    <ul>
+                        {% for item in analysis.swot_analysis.opportunities %}<li>{{ item }}</li>{% endfor %}
                     </ul>
                 </div>
-                <div class="swot-item threat">
-                    <div class="swot-title">
-                        <div class="swot-icon threat">🔥</div>
-                        Threats
-                    </div>
-                    <ul class="swot-list">
-                        <li>Increasing competition</li>
-                        <li>Regulatory changes</li>
-                        <li>Technology disruption</li>
+                <div class="swot-box swot-t">
+                    <h4><i class="fa-solid fa-shield-halved" style="color: var(--score-med)"></i> Threats</h4>
+                    <ul>
+                        {% for item in analysis.swot_analysis.threats %}<li>{{ item }}</li>{% endfor %}
                     </ul>
                 </div>
             </div>
         </div>
 
-        <!-- Target Customers -->
-        <div class="dashboard-card target-customers">
-            <div class="card-header">
-                <div class="card-icon">👥</div>
-                <h3 class="card-title">Target Customers</h3>
-            </div>
-            <div class="customer-segments">
-                <div class="customer-segment">
-                    <div class="segment-title">
-                        <div class="segment-icon">🎯</div>
-                        Primary Market
-                    </div>
-                    <div class="segment-description">
-                        Tech-savvy professionals aged 25-45, early adopters of AI solutions, with disposable income for premium tools.
-                    </div>
-                </div>
-                <div class="customer-segment">
-                    <div class="segment-title">
-                        <div class="segment-icon">🌍</div>
-                        Secondary Market
-                    </div>
-                    <div class="segment-description">
-                        Small to medium businesses seeking digital transformation, cost-conscious but value-driven solutions.
-                    </div>
-                </div>
-                <div class="customer-segment">
-                    <div class="segment-title">
-                        <div class="segment-icon">🚀</div>
-                        Growth Potential
-                    </div>
-                    <div class="segment-description">
-                        Educational institutions, healthcare providers, and government agencies looking for AI integration.
-                    </div>
-                </div>
-            </div>
+        <!-- LISTS (Business Models & Suggestions) -->
+        <div class="col-6 glass-panel list-card">
+            <h3 class="section-title"><i class="fa-solid fa-money-bill-wave"></i> Monetization Models</h3>
+            <ul>
+                {% for model in analysis.business_models %}
+                <li>{{ model }}</li>
+                {% empty %}
+                <li>No specific models suggested.</li>
+                {% endfor %}
+            </ul>
         </div>
-
-        <!-- Business Model Suggestions -->
-        <div class="dashboard-card business-suggestions">
-            <div class="card-header">
-                <div class="card-icon">💡</div>
-                <h3 class="card-title">Business Model Suggestions</h3>
-            </div>
-            <ul class="suggestions-list">
-                <li class="suggestion-item">
-                    <div class="suggestion-header">
-                        <span class="suggestion-title">Freemium Model</span>
-                        <span class="suggestion-priority priority-high">High Priority</span>
-                    </div>
-                    <div class="suggestion-content">
-                        Offer basic features for free to attract users, then charge for premium features and advanced functionality.
-                    </div>
-                </li>
-                <li class="suggestion-item">
-                    <div class="suggestion-header">
-                        <span class="suggestion-title">Subscription Tiers</span>
-                        <span class="suggestion-priority priority-medium">Medium Priority</span>
-                    </div>
-                    <div class="suggestion-content">
-                        Create multiple subscription levels (Basic, Pro, Enterprise) to cater to different customer segments and maximize revenue.
-                    </div>
-                </li>
-                <li class="suggestion-item">
-                    <div class="suggestion-header">
-                        <span class="suggestion-title">API Integration</span>
-                        <span class="suggestion-priority priority-low">Low Priority</span>
-                    </div>
-                    <div class="suggestion-content">
-                        Develop API for third-party integrations and create additional revenue streams through partnerships.
-                    </div>
-                </li>
+        
+        <div class="col-6 glass-panel list-card">
+            <h3 class="section-title"><i class="fa-solid fa-wrench"></i> Critical Fixes Needed</h3>
+            <ul>
+                {% for suggestion in analysis.improvement_suggestions %}
+                <li>{{ suggestion }}</li>
+                {% empty %}
+                <li>No critical vulnerabilities found.</li>
+                {% endfor %}
             </ul>
         </div>
 
-        <!-- AI Improvement Suggestions -->
-        <div class="dashboard-card ai-suggestions">
-            <div class="card-header">
-                <div class="ai-icon">🤖</div>
-                <h3 class="card-title">AI Improvement Suggestions</h3>
-            </div>
-            <div class="ai-suggestion-content">
-                <div class="ai-suggestion-header">
-                    <div class="ai-suggestion-title">Strategic Recommendations</div>
-                </div>
-                <div class="ai-tips">
-                    <div class="ai-tip">
-                        <div class="ai-tip-icon">🎯</div>
-                        <div>
-                            <strong>Focus on Niche Markets:</strong> Target specific industries where AI adoption is rapidly growing but competition is limited.
-                        </div>
-                    </div>
-                    <div class="ai-tip">
-                        <div class="ai-tip-icon">⚡</div>
-                        <div>
-                            <strong>Accelerate MVP Development:</strong> Prioritize core AI features that solve the most pressing customer problems.
-                        </div>
-                    </div>
-                    <div class="ai-tip">
-                        <div class="ai-tip-icon">🔗</div>
-                        <div>
-                            <strong>Build Strategic Partnerships:</strong> Collaborate with established players in complementary industries.
-                        </div>
-                    </div>
-                    <div class="ai-tip">
-                        <div class="ai-tip-icon">📊</div>
-                        <div>
-                            <strong>Implement Data Analytics:</strong> Use customer data to continuously improve AI algorithms and user experience.
-                        </div>
-                    </div>
-                </div>
+        <!-- ROADMAP -->
+        <div class="col-12 glass-panel list-card">
+            <h3 class="section-title"><i class="fa-solid fa-road"></i> Execution Roadmap</h3>
+            <ul>
+                {% for phase in analysis.implementation_roadmap %}
+                <li>{{ phase }}</li>
+                {% empty %}
+                <li>Pending mapping...</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- FINAL VERDICT -->
+        <div class="col-12 glass-panel verdict-box">
+            <h2 class="text-gradient">The Verdict</h2>
+            <p style="font-size: 1.25rem; color: var(--text-primary); max-width: 800px; margin: 0 auto 2rem;">
+                "{{ analysis.final_verdict }}"
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="{% url 'chatbot:chat_interface' %}" class="btn-primary"><i class="fa-solid fa-robot"></i> Chat with Advisor</a>
+                <a href="{% url 'analyzer:home' %}" class="btn-premium">Validate Another Idea</a>
             </div>
         </div>
+
     </div>
-
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-        <button class="action-btn" onclick="exportReport()">
-            <i class="fas fa-download mr-2"></i>
-            Export Report
-        </button>
-        <button class="action-btn" onclick="shareResults()">
-            <i class="fas fa-share-alt mr-2"></i>
-            Share Results
-        </button>
-        <button class="action-btn" onclick="analyzeNewIdea()">
-            <i class="fas fa-plus mr-2"></i>
-            Analyze New Idea
-        </button>
-        <button class="action-btn" onclick="saveToDashboard()">
-            <i class="fas fa-save mr-2"></i>
-            Save to Dashboard
-        </button>
-    </div>
+    {% endif %}
 </div>
-
-<!-- Loading Overlay -->
-<div id="loadingOverlay" class="loading-overlay" style="display: none;">
-    <div class="loading-spinner"></div>
-    <div class="loading-text">Generating comprehensive analysis...</div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
 <script>
-// Initialize charts without CDN dependency
-(function() {
-    // Direct fallback - no CDN loading
-    console.log('Initializing charts with fallback system');
-    initializeFallbackCharts();
-    
-    // Fallback chart initialization
-    function initializeFallbackCharts() {
-        // Hide chart containers and show fallback content
-        const chartContainers = document.querySelectorAll('[id*="chart"]');
-        chartContainers.forEach(container => {
-            const parent = container.parentElement;
-            parent.innerHTML = `
-                <div class="fallback-chart">
-                    <div class="chart-placeholder">
-                        <div class="placeholder-icon">📊</div>
-                        <h4>Analysis Data</h4>
-                        <p>Comprehensive business intelligence metrics</p>
-                        <div class="chart-data">
-                            ${getChartData(container.id)}
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        // Initialize progress circles with CSS
-        initializeProgressCircle();
-    }
-    
-    function getChartData(chartId) {
-        // Return data based on chart type
-        const data = {
-            'marketChart': '<div class="data-item">📈 Market Potential: <strong>85%</strong></div><div class="data-item">🎯 Target Audience Match: <strong>78%</strong></div><div class="data-item">💰 Revenue Forecast: <strong>$2.5M/year</strong></div>',
-            'competitionChart': '<div class="data-item">🏢 Competition Level: <strong>Medium</strong></div><div class="data-item">💪 Market Position: <strong>Strong</strong></div><div class="data-item">🚀 Growth Opportunity: <strong>High</strong></div>',
-            'riskChart': '<div class="data-item">⚠️ Risk Level: <strong>Low-Medium</strong></div><div class="data-item">🛡️ Success Probability: <strong>78%</strong></div><div class="data-item">⏱️ Time to Market: <strong>6-12 months</strong></div>'
-        };
-        return data[chartId] || '<div class="data-item">📊 Analysis data available</div>';
-    }
-    
-    // Initialize Progress Circle
-    function initializeProgressCircle() {
-        const circle = document.querySelector('.progress-ring-circle');
-        if (circle) {
-            const radius = 90;
-            const circumference = 2 * Math.PI * radius;
-            const percent = 78; // Success probability
-            
-            circle.style.strokeDasharray = `${circumference} ${circumference}`;
-            circle.style.strokeDashoffset = circumference - (percent / 100) * circumference;
-        }
-    }
-    
-    // Animate cards on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const cards = document.querySelectorAll('.metric-card, .swot-card, .suggestion-card');
-        cards.forEach((card, index) => {
-            setTimeout(() => {
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 200);
-        });
-        
-        // Initialize everything
-        initializeFallbackCharts();
+    // To satisfy IDE HTML/CSS template syntax linters, we apply dynamic inline variables through JS data attributes.
+    document.querySelectorAll('.dynamic-percentage').forEach(function(el) {
+        el.style.setProperty('--percentage', el.getAttribute('data-percent'));
     });
-})();
-</script>
-
-<script>
-// Interactive Functions
-function exportReport() {
-    showLoading();
-    setTimeout(() => {
-        hideLoading();
-        alert('Report exported successfully! (This would generate a PDF/Excel report)');
-    }, 2000);
-}
-
-function shareResults() {
-    showLoading();
-    setTimeout(() => {
-        hideLoading();
-        alert('Results shared! (This would open share dialog)');
-    }, 1500);
-}
-
-function analyzeNewIdea() {
-    window.location.href = '{% url "analyzer:home" %}';
-}
-
-function saveToDashboard() {
-    showLoading();
-    setTimeout(() => {
-        hideLoading();
-        alert('Analysis saved to dashboard! (This would save to user dashboard)');
-    }, 1800);
-}
-
-function showLoading() {
-    document.getElementById('loadingOverlay').style.display = 'flex';
-}
-
-function hideLoading() {
-    document.getElementById('loadingOverlay').style.display = 'none';
-}
-
-// Initialize on load
-document.addEventListener('DOMContentLoaded', function() {
-    initializeProgressCircle();
-    
-    // Add entrance animations
-    const cards = document.querySelectorAll('.dashboard-card');
-    cards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(50px)';
-        
-        setTimeout(() => {
-            card.style.transition = 'all 0.6s ease';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, index * 200);
+    document.querySelectorAll('.dynamic-width').forEach(function(el) {
+        el.style.width = el.getAttribute('data-width');
     });
-});
 </script>
 {% endblock %}

@@ -1,980 +1,377 @@
 {% extends 'base.html' %}
 
-{% block title %}AI Business Idea Validator - Home{% endblock %}
+{% block title %}AI Idea Business Validator | Validate Your Startup Concept{% endblock %}
 
 {% block extra_css %}
 <style>
-.gradient-bg {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-}
-
-.animate-float {
-    animation: float 3s ease-in-out infinite;
-}
-
-/* Enhanced Hero Styles */
-.hero-stunning {
-    background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 50%, #16213e 100%);
-    position: relative;
-    overflow: hidden;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-}
-
-.hero-stunning::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.2) 0%, transparent 50%);
-    animation: gradientShift 8s ease-in-out infinite;
-}
-
-@keyframes gradientShift {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
-}
-
-.hero-title-stunning {
-    font-size: clamp(3rem, 8vw, 6rem);
-    font-weight: 900;
-    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 0 0 80px rgba(59, 130, 246, 0.5);
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-    margin-bottom: 1.5rem;
-}
-
-.hero-subtitle-stunning {
-    font-size: clamp(1.2rem, 3vw, 2rem);
-    color: rgba(232, 232, 240, 0.9);
-    font-weight: 300;
-    margin-bottom: 3rem;
-    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-}
-
-.cta-button-stunning {
-    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
-    background-size: 300% 300%;
-    border: none;
-    border-radius: 50px;
-    color: white;
-    font-size: 1.2rem;
-    font-weight: 700;
-    padding: 1.2rem 3rem;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
-    animation: gradientShift 3s ease-in-out infinite;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.cta-button-stunning::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.5s;
-}
-
-.cta-button-stunning:hover::before {
-    left: 100%;
-}
-
-.cta-button-stunning:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 20px 60px rgba(59, 130, 246, 0.6);
-}
-
-/* Dashboard AI Objects */
-.ai-object {
-    position: absolute;
-    border-radius: 20px;
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.05));
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    color: white;
-    animation: float3D 6s ease-in-out infinite;
-    transform-style: preserve-3d;
-    perspective: 1000px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-.ai-object-1 {
-    top: 20%;
-    left: 10%;
-    width: 80px;
-    height: 80px;
-    animation-delay: 0s;
-    transform: rotateY(15deg) rotateX(10deg);
-}
-
-.ai-object-2 {
-    top: 60%;
-    right: 15%;
-    width: 100px;
-    height: 100px;
-    animation-delay: 1s;
-    transform: rotateY(-20deg) rotateX(15deg);
-}
-
-.ai-object-3 {
-    top: 30%;
-    right: 25%;
-    width: 60px;
-    height: 60px;
-    animation-delay: 2s;
-    transform: rotateY(25deg) rotateX(-10deg);
-}
-
-.ai-object-4 {
-    bottom: 20%;
-    left: 20%;
-    width: 90px;
-    height: 90px;
-    animation-delay: 3s;
-    transform: rotateY(-15deg) rotateX(-15deg);
-}
-
-@keyframes float3D {
-    0%, 100% { 
-        transform: translateY(0px) rotateY(var(--rotate-y, 0deg)) rotateX(var(--rotate-x, 0deg)); 
+    /* Hero Section Specifically */
+    .hero-section {
+        min-height: calc(100vh - 72px);
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 4rem 2rem;
+        position: relative;
+        overflow: hidden;
     }
-    25% { 
-        transform: translateY(-15px) rotateY(calc(var(--rotate-y, 0deg) + 10deg)) rotateX(calc(var(--rotate-x, 0deg) + 5deg)); 
-    }
-    50% { 
-        transform: translateY(-25px) rotateY(var(--rotate-y, 0deg)) rotateX(var(--rotate-x, 0deg)); 
-    }
-    75% { 
-        transform: translateY(-15px) rotateY(calc(var(--rotate-y, 0deg) - 10deg)) rotateX(calc(var(--rotate-x, 0deg) - 5deg)); 
-    }
-}
 
-/* Dashboard Entrance Animations */
-.hero-content-stunning {
-    opacity: 0;
-    transform: translateY(50px);
-    animation: heroEntrance 1.5s ease-out forwards;
-    animation-delay: 0.3s;
-}
-
-@keyframes heroEntrance {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.ai-object {
-    opacity: 0;
-    animation: objectEntrance 1s ease-out forwards, float3D 6s ease-in-out infinite;
-}
-
-.ai-object-1 { animation-delay: 0.5s, 0s; }
-.ai-object-2 { animation-delay: 0.7s, 1s; }
-.ai-object-3 { animation-delay: 0.9s, 2s; }
-.ai-object-4 { animation-delay: 1.1s, 3s; }
-
-@keyframes objectEntrance {
-    from {
-        opacity: 0;
-        transform: translateY(30px) scale(0.8);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* Dashboard Pulse effect */
-.cta-pulse {
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% {
-        box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
-    }
-    50% {
-        box-shadow: 0 10px 60px rgba(59, 130, 246, 0.8);
-    }
-    100% {
-        box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4);
-    }
-}
-
-/* Dashboard Responsive adjustments */
-@media (max-width: 768px) {
-    .ai-object {
-        display: none;
+    /* Ambient background glows */
+    .hero-glow-1 {
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(138,43,226,0.15) 0%, rgba(0,0,0,0) 70%);
+        top: -100px;
+        right: -100px;
+        z-index: -1;
+        border-radius: 50%;
+        filter: blur(40px);
     }
     
-    .hero-title-stunning {
-        font-size: clamp(2.5rem, 10vw, 4rem);
+    .hero-glow-2 {
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(0,240,255,0.1) 0%, rgba(0,0,0,0) 70%);
+        bottom: -50px;
+        left: -150px;
+        z-index: -1;
+        border-radius: 50%;
+        filter: blur(40px);
+    }
+
+    .hero-headline {
+        font-size: 4.5rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        letter-spacing: -0.03em;
     }
     
-    .cta-button-stunning {
-        font-size: 1rem;
-        padding: 1rem 2rem;
+    .hero-subhead {
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+        max-width: 650px;
+        margin: 0 auto 3rem auto;
+        font-weight: 400;
+        line-height: 1.6;
     }
-}
+
+    /* Main Idea Input Modal Box */
+    .analyzer-workspace {
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+        text-align: left;
+    }
+
+    .glass-input-wrapper {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .idea-textarea {
+        width: 100%;
+        min-height: 180px;
+        background: rgba(10, 15, 25, 0.6);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem 1.5rem 5rem 1.5rem;
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        font-size: 1.15rem;
+        line-height: 1.6;
+        resize: vertical;
+        transition: var(--transition-smooth);
+        backdrop-filter: blur(12px);
+    }
+
+    .idea-textarea:focus {
+        outline: none;
+        border-color: var(--accent-cyan);
+        box-shadow: 0 0 0 1px var(--accent-cyan), 0 10px 40px rgba(0, 240, 255, 0.1);
+    }
+
+    .idea-textarea::placeholder {
+        color: var(--text-dim);
+    }
+
+    /* Floating Toolbar inside Textarea */
+    .input-toolbar {
+        position: absolute;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        left: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .voice-btn {
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        color: var(--text-secondary);
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition-swift);
+        cursor: pointer;
+    }
+
+    .voice-btn:hover {
+        background: rgba(255,255,255,0.05);
+        color: var(--text-primary);
+        border-color: var(--glass-highlight);
+    }
+
+    /* Suggestion Chips */
+    .suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .chip {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        padding: 0.5rem 1rem;
+        border-radius: 99px;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: var(--transition-swift);
+    }
+
+    .chip:hover {
+        background: var(--glass-highlight);
+        color: var(--text-primary);
+        border-color: var(--accent-purple);
+    }
+
+    @media (max-width: 768px) {
+        .hero-headline { font-size: 3rem; }
+        .hero-section { padding: 2rem 1rem; }
+        .idea-textarea { font-size: 1rem; }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Stunning Hero Section -->
-<div class="hero-stunning">
-    <!-- Floating 3D AI Objects -->
-    <div class="ai-object ai-object-1">
-        <i class="fas fa-brain"></i>
-    </div>
-    <div class="ai-object ai-object-2">
-        <i class="fas fa-robot"></i>
-    </div>
-    <div class="ai-object ai-object-3">
-        <i class="fas fa-chart-line"></i>
-    </div>
-    <div class="ai-object ai-object-4">
-        <i class="fas fa-lightbulb"></i>
-    </div>
+<div class="hero-section">
+    <div class="hero-glow-1"></div>
+    <div class="hero-glow-2"></div>
     
-    <!-- 3D Globe Container -->
-    <div class="globe-container" id="globe-container" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.3;"></div>
-    
-    <!-- Hero Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
-        <div class="hero-content-stunning text-center">
-            <h1 class="hero-title-stunning">
-                AI Business Idea Validator
-            </h1>
-            <p class="hero-subtitle-stunning">
-                Validate your startup idea in seconds using AI.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                <button onclick="scrollToForm()" class="cta-button-stunning cta-pulse">
-                    <i class="fas fa-rocket mr-3"></i> Analyze My Idea
-                </button>
-                <a href="{% url 'analyzer:about' %}" class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold hover:bg-white hover:text-purple-600 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
-                    <i class="fas fa-info-circle mr-2"></i> Learn More
-                </a>
-            </div>
-            
-            <!-- Additional trust indicators -->
-            <div class="mt-16 flex flex-wrap justify-center gap-8 text-white opacity-80">
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-check-circle text-green-400"></i>
-                    <span class="text-sm">AI-Powered Analysis</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-shield-alt text-blue-400"></i>
-                    <span class="text-sm">Secure & Confidential</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-bolt text-yellow-400"></i>
-                    <span class="text-sm">Instant Results</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Dashboard Animated background elements -->
-    <div class="absolute inset-0 overflow-hidden">
-        <div class="absolute top-10 left-10 w-32 h-32 bg-blue-500 rounded-full filter blur-3xl opacity-20 animate-pulse"></div>
-        <div class="absolute bottom-10 right-10 w-48 h-48 bg-purple-500 rounded-full filter blur-3xl opacity-20 animate-pulse" style="animation-delay: 1s;"></div>
-        <div class="absolute top-1/2 left-1/4 w-40 h-40 bg-pink-500 rounded-full filter blur-3xl opacity-20 animate-pulse" style="animation-delay: 2s;"></div>
+    <div class="container" style="z-index: 10;">
+        <h1 class="hero-headline">Validate Your Startup<br><span class="text-gradient">With Deep AI</span></h1>
+        <p class="hero-subhead">Stop guessing. Enter your business concept below and get an elite, VC-grade analysis covering market demand, revenue models, and hidden risks instantly via Gemini 1.5 Pro.</p>
         
-        <!-- Dashboard Grid Pattern -->
-        <div class="absolute inset-0 opacity-10">
-            <div class="h-full w-full" style="background-image: linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px); background-size: 50px 50px;"></div>
-        </div>
-    </div>
-</div>
-
-<!-- Dashboard Features Section -->
-<div class="py-16" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold gradient-text mb-4">Comprehensive Business Analysis</h2>
-            <p class="text-lg text-gray-300">Get insights across multiple dimensions of your business idea</p>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="feature-card card-3d">
-                <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 floating">
-                    <i class="fas fa-chart-line text-white text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-semibold mb-2 gradient-text">Market Analysis</h3>
-                <p class="text-gray-300">Analyze market size, growth potential, and target audience with AI-powered insights</p>
-            </div>
-            <div class="feature-card card-3d">
-                <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 floating" style="animation-delay: 0.2s;">
-                    <i class="fas fa-users text-white text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-semibold mb-2 gradient-text">Competitor Research</h3>
-                <p class="text-gray-300">Identify competitors and analyze their strengths and weaknesses using advanced algorithms</p>
-            </div>
-            <div class="feature-card card-3d">
-                <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 floating" style="animation-delay: 0.4s;">
-                    <i class="fas fa-exclamation-triangle text-white text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-semibold mb-2 gradient-text">Risk Assessment</h3>
-                <p class="text-gray-300">Evaluate potential risks and get strategies to mitigate them effectively</p>
-            </div>
-            <div class="feature-card card-3d">
-                <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 floating" style="animation-delay: 0.6s;">
-                    <i class="fas fa-chart-pie text-white text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-semibold mb-2 gradient-text">Feasibility Study</h3>
-                <p class="text-gray-300">Assess technical and financial feasibility of your business concept</p>
-            </div>
-            <div class="feature-card card-3d">
-                <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 floating" style="animation-delay: 0.8s;">
-                    <i class="fas fa-trophy text-white text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-semibold mb-2 gradient-text">Success Prediction</h3>
-                <p class="text-gray-300">Get AI-powered predictions based on market trends and similar successful ventures</p>
-            </div>
-            <div class="feature-card card-3d">
-                <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 floating" style="animation-delay: 1s;">
-                    <i class="fas fa-lightbulb text-white text-3xl"></i>
-                </div>
-                <h3 class="text-xl font-semibold mb-2 gradient-text">AI Suggestions</h3>
-                <p class="text-gray-300">Receive intelligent recommendations to improve and refine your business idea</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Business Idea Form -->
-<div id="idea-form" class="py-16" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold gradient-text mb-4">Submit Your Business Idea</h2>
-            <p class="text-lg text-gray-300">Fill in the details below to get your comprehensive AI analysis</p>
-        </div>
-        
-        <form id="businessIdeaForm" class="glass-card p-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="md:col-span-2">
-                    <label for="title" class="block text-sm font-medium text-gray-300 mb-2">
-                        Business Idea Title <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" id="title" name="title" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-black"
-                           placeholder="e.g., AI-Powered Personal Fitness Coach">
-                </div>
-                
-                <div class="md:col-span-2">
-                    <label for="description" class="block text-sm font-medium text-gray-300 mb-2">
-                        Detailed Description <span class="text-red-500">*</span>
-                    </label>
-                    <textarea id="description" name="description" rows="4" required
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-black"
-                              placeholder="Describe your business idea in detail. What problem does it solve? How does it work?"></textarea>
-                </div>
-                
-                <div>
-                    <label for="industry" class="block text-sm font-medium text-gray-300 mb-2">
-                        Industry <span class="text-red-500">*</span>
-                    </label>
-                    <div class="relative">
-                        <select id="industry" name="industry" required
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-black"
-                                onchange="handleIndustryChange(this)">
-                            <option value="">Select Industry or Type Custom</option>
-                            <option value="Technology">Technology</option>
-                            <option value="Healthcare">Healthcare</option>
-                            <option value="Finance">Finance</option>
-                            <option value="Education">Education</option>
-                            <option value="E-commerce">E-commerce</option>
-                            <option value="Food & Beverage">Food & Beverage</option>
-                            <option value="Real Estate">Real Estate</option>
-                            <option value="Transportation">Transportation</option>
-                            <option value="Entertainment">Entertainment</option>
-                            <option value="Other">Other</option>
-                            <option value="custom">+ Type Custom Industry</option>
-                        </select>
-                        <input type="text" id="custom_industry" name="custom_industry" 
-                               class="hidden w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-black mt-2"
-                               placeholder="Enter your custom industry...">
+        <div class="analyzer-workspace glass-panel">
+            <form id="analyze-form" onsubmit="handleAnalysis(event)">
+                <div class="glass-input-wrapper">
+                    <textarea 
+                        id="idea-input" 
+                        class="idea-textarea" 
+                        placeholder="Describe your business idea... (e.g. 'A B2B SaaS platform that uses AI to automate performance reviews for remote engineering teams.')"
+                        required></textarea>
+                    
+                    <div class="input-toolbar">
+                        <button type="button" class="voice-btn" onclick="startVoiceInput()" title="Use Voice Input">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <button type="submit" class="btn-primary" id="submit-btn">
+                            <i class="fa-solid fa-bolt"></i> Generate Analysis
+                        </button>
                     </div>
                 </div>
-                
-                <div>
-                    <label for="revenue_model" class="block text-sm font-medium text-gray-300 mb-2">
-                        Revenue Model
-                    </label>
-                    <div class="relative">
-                        <select id="revenue_model" name="revenue_model"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-black"
-                                onchange="handleRevenueModelChange(this)">
-                            <option value="">Select Revenue Model or Type Custom</option>
-                            <option value="Subscription">Subscription</option>
-                            <option value="One-time Purchase">One-time Purchase</option>
-                            <option value="Freemium">Freemium</option>
-                            <option value="Advertising">Advertising</option>
-                            <option value="Marketplace">Marketplace</option>
-                            <option value="Licensing">Licensing</option>
-                            <option value="Other">Other</option>
-                            <option value="custom">+ Type Custom Revenue Model</option>
-                        </select>
-                        <input type="text" id="custom_revenue_model" name="custom_revenue_model" 
-                               class="hidden w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-black mt-2"
-                               placeholder="Enter your custom revenue model...">
-                    </div>
-                </div>
-                
-                <div class="md:col-span-2">
-                    <label for="target_market" class="block text-sm font-medium text-gray-300 mb-2">
-                        Target Market
-                    </label>
-                    <textarea id="target_market" name="target_market" rows="3"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white text-black"
-                              placeholder="Describe your target customers and market segment"></textarea>
-                </div>
-            </div>
+            </form>
             
-            <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                <button type="button" onclick="quickAnalysis()" 
-                        class="glow-button px-6 py-3 rounded-lg font-semibold">
-                    <i class="fas fa-bolt mr-2"></i> Quick Preview
-                </button>
-                <button type="button" onclick="fullAnalysis()" 
-                        class="glow-button px-8 py-3 rounded-lg font-semibold">
-                    <i class="fas fa-chart-bar mr-2"></i> Full Analysis
-                </button>
-            </div>
-        </form>
-        
-        <!-- Analysis Results Section -->
-        <div id="analysisResults" class="mt-12 glass-card p-8 hidden">
-            <h3 class="text-2xl font-bold gradient-text mb-6">Analysis Results</h3>
-            <div id="analysisContent">
-                <!-- Analysis content will be inserted here -->
-            </div>
-        </div>
-        
-        <!-- Quick Preview Modal -->
-        <div id="quickPreviewModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-            <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 max-h-screen overflow-y-auto">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-2xl font-bold text-gray-900">Quick Analysis Preview</h3>
-                    <button onclick="closeQuickPreview()" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-                <div id="quickPreviewContent" class="space-y-4">
-                    <!-- Quick preview content will be inserted here -->
-                </div>
+            <div class="suggestions">
+                <span class="text-dim" style="font-size: 0.85rem; padding: 0.5rem;">Try:</span>
+                <div class="chip" onclick="fillExample('A D2C subscription box for premium organic dog food.')">Pet Food Subscription</div>
+                <div class="chip" onclick="fillExample('An AI agent that acts as a 24/7 financial advisor. It syncs with bank accounts to stop bad spending habits.')">AI Financial Advisor</div>
+                <div class="chip" onclick="fillExample('A peer-to-peer marketplace where neighbors can rent out expensive power tools to each other.')">P2P Tool Rental</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Analysis Results Section -->
-<div id="analysisResults" class="py-16 bg-white hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-gray-900 mb-4">Your Business Analysis Results</h2>
-            <p class="text-lg text-gray-600">Comprehensive insights for your startup idea</p>
-        </div>
-        
-        <div id="resultsContent">
-            <!-- Analysis results will be inserted here -->
-        </div>
-        
-        <div class="mt-8 text-center">
-            {% if user.is_authenticated %}
-                <button onclick="saveIdea()" class="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors mr-4">
-                    <i class="fas fa-save mr-2"></i> Save Idea
-                </button>
-            {% else %}
-                <a href="{% url 'auth_app:mock_login' %}" class="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors mr-4">
-                    <i class="fas fa-save mr-2"></i> Login to Save
-                </a>
-            {% endif %}
-            <button onclick="resetForm()" class="bg-gray-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors">
-                <i class="fas fa-redo mr-2"></i> Analyze Another Idea
-            </button>
-        </div>
-    </div>
-</div>
+<!-- Hidden Form for navigating to Dashboard securely -->
+<form id="redirect-form" method="POST" action="{% url 'analyzer:results_dashboard' %}" style="display: none;">
+    <input type="hidden" name="analysis_data" id="analysis-data-input">
+</form>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    let currentAnalysis = null;
-
-    function scrollToForm() {
-        document.getElementById('idea-form').scrollIntoView({ behavior: 'smooth' });
+    function fillExample(text) {
+        const input = document.getElementById('idea-input');
+        input.value = text;
+        input.focus();
     }
 
-    // Full analysis
-    async function fullAnalysis() {
-        const title = document.getElementById('title').value;
-        const description = document.getElementById('description').value;
-        const industry = getIndustryValue();
-        const revenueModel = getRevenueModelValue();
-        const targetMarket = document.getElementById('target_market').value;
+    // ─── Dashboard Microphone: Robust Speech Recognition ───
+    let isRecording = false;
+    let recognitionInstance = null;
 
-        if (!title || !description || !industry) {
-            alert('Please fill in all required fields (Title, Description, and Industry)');
+    function startVoiceInput() {
+        const btn = document.querySelector('.voice-btn');
+        const input = document.getElementById('idea-input');
+
+        // Already recording? Stop it.
+        if (isRecording && recognitionInstance) {
+            recognitionInstance.stop();
             return;
         }
 
-        showLoading();
-
-        try {
-            const response = await fetch('{% url "analyzer:analyze_idea_api" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                },
-                body: JSON.stringify({
-                    title,
-                    description,
-                    industry,
-                    revenue_model: revenueModel,
-                    target_market: targetMarket,
-                    quick: false
-                })
-            });
-
-            const analysis = await response.json();
-            
-            if (analysis.error) {
-                throw new Error(analysis.error);
-            }
-
-            currentAnalysis = analysis;
-            showFullAnalysis(analysis);
-        } catch (error) {
-            alert('Error: ' + error.message);
-        } finally {
-            hideLoading();
-        }
-    }
-
-    // Quick analysis
-    async function quickAnalysis() {
-        const title = document.getElementById('title').value;
-        const description = document.getElementById('description').value;
-        const industry = getIndustryValue();
-        const revenueModel = getRevenueModelValue();
-        const targetMarket = document.getElementById('target_market').value;
-
-        if (!title || !description || !industry) {
-            alert('Please fill in all required fields (Title, Description, and Industry)');
+        if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+            alert("Voice typing is not supported in your browser. Please use Chrome or Edge.");
             return;
         }
 
-        showLoading();
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognitionInstance = new SpeechRecognition();
 
-        try {
-            const response = await fetch('{% url "analyzer:analyze_idea_api" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                },
-                body: JSON.stringify({
-                    title,
-                    description,
-                    industry,
-                    revenue_model: revenueModel,
-                    target_market: targetMarket,
-                    quick: true
-                })
-            });
+        // ── Configuration ──
+        recognitionInstance.lang = 'en-US';
+        recognitionInstance.continuous = true;
+        recognitionInstance.interimResults = true;
+        recognitionInstance.maxAlternatives = 1;
 
-            const analysis = await response.json();
-            
-            if (analysis.error) {
-                throw new Error(analysis.error);
-            }
+        // Save text that was already in the textarea before recording
+        const preExistingText = (input.value === 'Listening...' || input.value === 'Error recognizing speech.') ? '' : input.value;
+        let finalizedText = preExistingText;
 
-            currentAnalysis = analysis;
-            showQuickPreview(analysis);
-        } catch (error) {
-            alert('Error: ' + error.message);
-        } finally {
-            hideLoading();
-        }
-    }
-
-    // Show quick analysis preview
-    function showQuickPreview(analysis) {
-        const content = document.getElementById('quickPreviewContent');
-        const modal = document.getElementById('quickPreviewModal');
-        
-        // Handle different response structures
-        const score = analysis.validation_report?.overall_score || 
-                     analysis.overall_score || 
-                     analysis.score || 
-                     75;
-        
-        const recommendation = analysis.validation_report?.recommendation || 
-                             analysis.recommendation || 
-                             'Analysis completed successfully';
-        
-        content.innerHTML = `
-            <div class="space-y-4">
-                <div class="text-center mb-6">
-                    <div class="inline-flex items-center justify-center w-24 h-24 rounded-full border-4 border-purple-200">
-                        <div class="text-3xl font-bold text-purple-600">${score}</div>
-                    </div>
-                    <p class="mt-2 text-lg font-semibold text-gray-800">Overall Score</p>
-                </div>
-                
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 class="font-semibold text-blue-800 mb-2">Recommendation</h4>
-                    <p class="text-blue-700">${recommendation}</p>
-                </div>
-                
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <h4 class="font-semibold text-green-800 mb-2">Analysis Summary</h4>
-                    <p class="text-green-700">Your business idea has been analyzed. Click "Full Analysis" for detailed insights.</p>
-                </div>
-                
-                <div class="flex gap-3 justify-center">
-                    <button onclick="closeQuickPreview()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-                        Close
-                    </button>
-                    <button onclick="closeQuickPreview(); fullAnalysis();" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-                        Full Analysis
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        modal.classList.remove('hidden');
-    }
-
-    // Show full analysis results
-    function showFullAnalysis(analysis) {
-        // Redirect to results dashboard with analysis data
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '{% url "analyzer:results_dashboard" %}';
-        form.style.display = 'none';
-        
-        // Add analysis data as hidden inputs
-        const analysisInput = document.createElement('input');
-        analysisInput.type = 'hidden';
-        analysisInput.name = 'analysis_data';
-        analysisInput.value = JSON.stringify(analysis);
-        
-        form.appendChild(analysisInput);
-        document.body.appendChild(form);
-        form.submit();
-    }
-
-    function showQuickPreview(analysis) {
-        const content = document.getElementById('quickPreviewContent');
-        const modal = document.getElementById('quickPreviewModal');
-        
-        // Handle different response structures with fallbacks
-        const score = analysis.validation_report?.overall_score || 
-                     analysis.overall_score || 
-                     analysis.score || 
-                     75;
-        
-        const recommendation = analysis.validation_report?.recommendation || 
-                             analysis.recommendation || 
-                             'Analysis completed successfully';
-        
-        const marketPotential = analysis.market_potential || 'Medium';
-        const competitionLevel = analysis.competition_level || 'Medium';
-        const keyChallenges = analysis.key_challenges || 'No major challenges identified';
-        
-        content.innerHTML = `
-            <div class="space-y-4">
-                <div class="text-center mb-6">
-                    <div class="inline-flex items-center justify-center w-24 h-24 rounded-full border-4 border-purple-200">
-                        <div class="text-3xl font-bold text-purple-600">${score}</div>
-                    </div>
-                    <p class="mt-2 text-lg font-semibold text-gray-800">Overall Score</p>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <h4 class="font-semibold text-gray-700 mb-2">Market Potential</h4>
-                        <div class="text-xl font-semibold text-gray-800">${marketPotential}</div>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <h4 class="font-semibold text-gray-700 mb-2">Competition Level</h4>
-                        <div class="text-xl font-semibold text-gray-800">${competitionLevel}</div>
-                    </div>
-                </div>
-                
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h4 class="font-semibold text-blue-800 mb-2">Recommendation</h4>
-                    <p class="text-blue-700">${recommendation}</p>
-                </div>
-                
-                <div class="bg-yellow-50 p-4 rounded-lg">
-                    <h4 class="font-semibold text-gray-700 mb-2">Key Challenges</h4>
-                    <p class="text-gray-600">${keyChallenges}</p>
-                </div>
-                
-                <div class="flex gap-3 justify-center">
-                    <button onclick="closeQuickPreview()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-                        Close
-                    </button>
-                    <button onclick="closeQuickPreview(); fullAnalysis();" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-                        Full Analysis
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        modal.classList.remove('hidden');
-    }
-
-    function closeQuickPreview() {
-        document.getElementById('quickPreviewModal').classList.add('hidden');
-    }
-
-    function getRecommendationColor(recommendation) {
-        switch(recommendation) {
-            case 'Proceed': return 'text-green-600';
-            case 'Reconsider': return 'text-yellow-600';
-            case 'Pivot': return 'text-red-600';
-            default: return 'text-gray-600';
-        }
-    }
-
-    // Full analysis form submission
-    document.getElementById('businessIdeaForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const data = {
-            title: formData.get('title'),
-            description: formData.get('description'),
-            industry: formData.get('industry'),
-            target_market: formData.get('target_market'),
-            revenue_model: formData.get('revenue_model')
+        // ── State: Listening ──
+        recognitionInstance.onstart = function() {
+            isRecording = true;
+            btn.style.color = 'var(--score-low)';
+            btn.style.borderColor = 'var(--score-low)';
+            btn.style.animation = 'pulse 1s infinite';
+            btn.title = 'Click to stop recording';
+            if (!preExistingText) input.value = 'Listening...';
+            console.log('[Mic] Started listening');
         };
 
-        showLoading();
+        // ── Transcript Handling ──
+        recognitionInstance.onresult = function(event) {
+            let interimTranscript = '';
+            let sessionFinal = '';
 
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    sessionFinal += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            // Append finalized chunks permanently
+            if (sessionFinal) {
+                finalizedText = (finalizedText ? finalizedText + ' ' : '') + sessionFinal.trim();
+            }
+
+            // Show finalized + current interim
+            const display = finalizedText + (interimTranscript ? ' ' + interimTranscript : '');
+            input.value = display || 'Listening...';
+        };
+
+        // ── State: Stopped ──
+        recognitionInstance.onend = function() {
+            isRecording = false;
+            btn.style.color = 'var(--text-secondary)';
+            btn.style.borderColor = 'var(--glass-border)';
+            btn.style.animation = 'none';
+            btn.title = 'Use Voice Input';
+            // Clean up placeholder
+            if (input.value === 'Listening...' || input.value.trim() === '') {
+                input.value = finalizedText || '';
+            }
+            recognitionInstance = null;
+            console.log('[Mic] Stopped');
+        };
+
+        // ── Error Handling ──
+        recognitionInstance.onerror = function(event) {
+            console.error('[Mic] Error:', event.error);
+            isRecording = false;
+            btn.style.color = 'var(--text-secondary)';
+            btn.style.borderColor = 'var(--glass-border)';
+            btn.style.animation = 'none';
+            btn.title = 'Use Voice Input';
+
+            switch(event.error) {
+                case 'not-allowed':
+                    alert('Microphone access denied. Please allow microphone permissions in your browser settings.');
+                    break;
+                case 'no-speech':
+                    // Silently handle — user just didn't speak
+                    if (!finalizedText) input.value = preExistingText || '';
+                    break;
+                case 'network':
+                    alert('Speech recognition requires an internet connection.');
+                    break;
+                case 'aborted':
+                    break; // Normal stop
+                default:
+                    console.warn('[Mic] Unhandled error:', event.error);
+            }
+            recognitionInstance = null;
+        };
+
+        // ── Start ──
         try {
-            const response = await fetch('{% url "analyzer:analyze_idea_api" %}', {
+            recognitionInstance.start();
+        } catch (e) {
+            console.error('[Mic] Failed to start:', e);
+            alert('Failed to start voice input. Please try again.');
+        }
+    }
+
+    async function handleAnalysis(event) {
+        event.preventDefault();
+        
+        const ideaText = document.getElementById('idea-input').value.trim();
+        if (!ideaText || ideaText === "Listening...") return;
+        
+        window.UI.showLoading("Running Deep Gemini AI Analysis...");
+        
+        try {
+            const response = await fetch("{% url 'analyzer:analyze_idea_api' %}", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-CSRFToken': window.UI.getCookie('csrftoken')
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify({
+                    idea: ideaText
+                })
             });
-
-            const result = await response.json();
             
-            if (result.success) {
-                currentAnalysis = result.analysis;
-                displayAnalysisResults(result.analysis);
-                document.getElementById('analysisResults').classList.remove('hidden');
-                document.getElementById('idea-form').scrollIntoView({ behavior: 'smooth' });
-            } else {
-                alert('Error: ' + result.error);
-            }
-        } catch (error) {
-            alert('Error: ' + error.message);
-        } finally {
-            hideLoading();
-        }
-    });
-
-    function displayAnalysisResults(analysis) {
-        const content = document.getElementById('resultsContent');
-        // This will be implemented to show the full analysis results
-        content.innerHTML = `
-            <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
-                <h3 class="text-xl font-bold text-green-800 mb-2">Analysis Complete!</h3>
-                <p class="text-green-700">Your comprehensive business analysis is ready. Scroll down to see detailed insights.</p>
-            </div>
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center justify-center w-32 h-32 rounded-full border-8 border-purple-200">
-                    <div class="text-4xl font-bold text-purple-600">${analysis.validation_report?.overall_score || 75}</div>
-                </div>
-                <p class="mt-2 text-xl font-semibold text-gray-800">Overall Score</p>
-            </div>
-            <p class="text-center text-gray-600">Detailed analysis visualization will be implemented here...</p>
-        `;
-    }
-
-    async function saveIdea() {
-        if (!currentAnalysis) {
-            alert('No analysis to save. Please analyze an idea first.');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('title', document.getElementById('title').value);
-        formData.append('description', document.getElementById('description').value);
-        formData.append('industry', getIndustryValue());
-        formData.append('target_market', document.getElementById('target_market').value);
-        formData.append('revenue_model', getRevenueModelValue());
-        formData.append('analysis_data', JSON.stringify(currentAnalysis));
-
-        showLoading();
-
-        try {
-            const response = await fetch('{% url "analyzer:save_idea" %}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                }
-            });
-
-            const result = await response.json();
+            const data = await response.json();
             
-            if (result.success) {
-                alert('Business idea saved successfully!');
-                window.location.href = '{% url "analyzer:my_ideas" %}';
+            if (data.success && data.analysis) {
+                // Success! We submit the hidden form via POST to load the dynamic results page.
+                document.getElementById('analysis-data-input').value = JSON.stringify(data.analysis);
+                document.getElementById('redirect-form').submit();
             } else {
-                alert('Error: ' + result.error);
+                window.UI.hideLoading();
+                alert("Analysis Error: " + (data.error || "Unknown error occurred."));
             }
+            
         } catch (error) {
-            alert('Error: ' + error.message);
-        } finally {
-            hideLoading();
+            console.error(error);
+            window.UI.hideLoading();
+            alert("Network error. Please make sure the backend is running.");
         }
-    }
-
-    function resetForm() {
-        document.getElementById('businessIdeaForm').reset();
-        document.getElementById('analysisResults').classList.add('hidden');
-        document.getElementById('quickPreviewModal').classList.add('hidden');
-        currentAnalysis = null;
-        
-        // Reset custom input fields
-        document.getElementById('custom_industry').classList.add('hidden');
-        document.getElementById('custom_revenue_model').classList.add('hidden');
-        document.getElementById('custom_industry').value = '';
-        document.getElementById('custom_revenue_model').value = '';
-        
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // Loading functions
-    function showLoading() {
-        // Create or show loading overlay
-        let loadingDiv = document.getElementById('loadingOverlay');
-        if (!loadingDiv) {
-            loadingDiv = document.createElement('div');
-            loadingDiv.id = 'loadingOverlay';
-            loadingDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-            loadingDiv.innerHTML = `
-                <div class="bg-white rounded-lg p-8 max-w-sm w-full mx-4">
-                    <div class="flex flex-col items-center">
-                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
-                        <p class="text-gray-700">Analyzing your business idea...</p>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(loadingDiv);
-        }
-        loadingDiv.classList.remove('hidden');
-    }
-
-    function hideLoading() {
-        const loadingDiv = document.getElementById('loadingOverlay');
-        if (loadingDiv) {
-            loadingDiv.classList.add('hidden');
-        }
-    }
-
-    // Close quick preview modal
-    function closeQuickPreview() {
-        document.getElementById('quickPreviewModal').classList.add('hidden');
-    }
-
-    // Handle custom industry input
-    function handleIndustryChange(select) {
-        const customInput = document.getElementById('custom_industry');
-        if (select.value === 'custom') {
-            customInput.classList.remove('hidden');
-            customInput.required = true;
-            select.required = false;
-        } else {
-            customInput.classList.add('hidden');
-            customInput.required = false;
-            customInput.value = '';
-            select.required = true;
-        }
-    }
-
-    // Handle custom revenue model input
-    function handleRevenueModelChange(select) {
-        const customInput = document.getElementById('custom_revenue_model');
-        if (select.value === 'custom') {
-            customInput.classList.remove('hidden');
-            customInput.required = true;
-            select.required = false;
-        } else {
-            customInput.classList.add('hidden');
-            customInput.required = false;
-            customInput.value = '';
-            select.required = true;
-        }
-    }
-
-    // Get the actual industry value (either selected or custom)
-    function getIndustryValue() {
-        const select = document.getElementById('industry');
-        const customInput = document.getElementById('custom_industry');
-        return select.value === 'custom' ? customInput.value : select.value;
-    }
-
-    // Get the actual revenue model value (either selected or custom)
-    function getRevenueModelValue() {
-        const select = document.getElementById('revenue_model');
-        const customInput = document.getElementById('custom_revenue_model');
-        return select.value === 'custom' ? customInput.value : select.value;
-    }
-
-    // CSRF token helper
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
     }
 </script>
 {% endblock %}
