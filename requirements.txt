@@ -85,8 +85,6 @@ tzdata==2025.3
 uritemplate==4.2.0
 urllib3==2.6.3
 vine==5.1.0
-virtualenv==20.35.4
-virtualenvwrapper-win==1.2.7
 wcwidth==0.6.0
 whitenoise==6.6.0
 yarl==1.23.0
