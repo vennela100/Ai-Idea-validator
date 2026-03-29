@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-import google.generativeai as genai
+from google import genai
 from typing import Dict, Any, Optional, List
 from dotenv import load_dotenv
 
@@ -22,10 +22,7 @@ class GeminiService:
         
         if self.api_key and self.api_key != 'your-google-api-key-here':
             try:
-                genai.configure(api_key=self.api_key)
-                self.model = genai.GenerativeModel(self.model_name)
-                # Chat model instance for ongoing conversations
-                self.chat_model = genai.GenerativeModel(self.model_name)
+                self.client = genai.Client(api_key=self.api_key)
                 self.is_configured = True
                 logger.info(f"✅ GeminiService configured with {self.model_name}")
             except Exception as e:
@@ -91,7 +88,10 @@ SCHEMA REQUIRED:
 }}
 """
         try:
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt
+            )
             text = response.text.strip()
             
             # Clean up potential markdown formatting from Gemini
@@ -122,7 +122,10 @@ SCHEMA REQUIRED:
         Directly executes the provided prompt while maintaining fallback resilience.
         """
         try:
-            response = self.chat_model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt
+            )
             return response.text.strip()
         except Exception as e:
             logger.error(f"❌ Gemini API failed: {e}")
