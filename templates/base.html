@@ -342,9 +342,46 @@
         }
         @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 
+        /* Mobile Menu Button */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
         /* Mobile specific adjustments */
         @media (max-width: 768px) {
-            .nav-links { display: none; } /* Could add a hamburger menu here later */
+            .nav-brand { font-size: 1.1rem; }
+            .nav-brand svg { width: 22px; height: 22px; }
+            
+            .menu-toggle { display: block; }
+            
+            .nav-links { 
+                position: absolute;
+                top: 72px;
+                left: 0;
+                width: 100%;
+                background: rgba(5, 7, 10, 0.95);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                flex-direction: column;
+                align-items: center;
+                gap: 1.5rem;
+                padding: 2rem;
+                border-bottom: 1px solid var(--glass-border);
+                clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); /* Hidden state */
+                transition: clip-path 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            
+            .nav-links.active {
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            }
+            
+            .nav-links a { font-size: 1.1rem; }
+            
             .main-content { padding: 1.5rem 0; }
         }
         
@@ -370,7 +407,10 @@
                 </svg>
                 AI Idea Business Validator
             </a>
-            <div class="nav-links">
+            <button class="menu-toggle" onclick="toggleMenu()" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="nav-links" id="nav-menu">
                 <a href="{% url 'analyzer:home' %}"><i class="fa-solid fa-house"></i> Dashboard</a>
                 <a href="{% url 'voice_assistant:voice_interface' %}"><i class="fa-solid fa-microphone"></i> Voice Agent</a>
                 <!-- We link to chat passing idea if possible, or just open base chat -->
@@ -416,6 +456,21 @@
                 return cookieValue;
             }
         };
+
+        // Mobile Menu Toggle logic
+        function toggleMenu() {
+            const menu = document.getElementById('nav-menu');
+            const icon = document.querySelector('.menu-toggle i');
+            menu.classList.toggle('active');
+            
+            if (menu.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-xmark');
+            } else {
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            }
+        }
     </script>
     
     {% block extra_js %}{% endblock %}

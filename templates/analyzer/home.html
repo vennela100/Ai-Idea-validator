@@ -156,9 +156,26 @@
     }
 
     @media (max-width: 768px) {
-        .hero-headline { font-size: 3rem; }
-        .hero-section { padding: 2rem 1rem; }
-        .idea-textarea { font-size: 1rem; }
+        .hero-headline { font-size: 2.5rem; }
+        .hero-section { 
+            padding: 2rem 1rem 3rem 1rem;
+            display: block;
+            min-height: auto;
+            overflow: visible;
+        }
+        .idea-textarea { 
+            font-size: 1.05rem; 
+            min-height: 260px;
+            padding-bottom: 5.5rem;
+        }
+        .input-toolbar {
+            bottom: 1rem;
+            left: 1rem;
+            right: 1rem;
+        }
+        .suggestions {
+            padding-bottom: 2rem;
+        }
     }
 </style>
 {% endblock %}
